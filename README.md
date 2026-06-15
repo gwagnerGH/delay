@@ -42,8 +42,6 @@ To print the exact local and SGE cluster commands (have to be adjusted for most 
 python scripts/reproduce_main_spec.py
 ```
 
-Cluster submission assumes an SGE environment with `grid_run` available.
-
 After the run outputs are present, regenerate the paper-facing tables and
 figures using `notebooks/paper_facing_plots.ipynb`.
 
