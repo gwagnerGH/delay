@@ -1,4 +1,3 @@
-```md
 # Economic Damages of Delayed Climate Action
 
 This repository contains the model runs and analysis for the paper `The welfare cost of delayed climate policy`.
@@ -53,5 +52,4 @@ The resulting paper tables and figures are written to:
 ```text
 data/new_outputs/paper_facing_plots/tables
 data/new_outputs/paper_facing_plots/figures
-```
 ```
