@@ -13,17 +13,24 @@ conda activate EZClimate
 ```
 
 The paper-facing analysis reads run outputs from `data/new_outputs/`. The
-current input folders are:
+current run-output folders are:
 
 ```text
+damage-robustness-BY2025-samegrid-run0-v3
+delay-frontier-BY2025-fiveyear-robustness-v1
+delay-frontier-BY2025-fiveyear-run0-v1
+delay-frontier-BY2025-robustness-v2
+delay-frontier-BY2025-samegrid-run0-v4
+ensemble-BY2025-samegrid-run0gauss-v5
 mean-parameter-BY2025-samegrid-run0-v3
 partial-mitigation-BY2025-samegrid-run0-cap-v3
-tree-robustness-BY2025-samegrid-run0-v3
 preference-grid-BY2025-samegrid-run0-v3
 technology-grid-BY2025-samegrid-run0-v3
-damage-robustness-BY2025-samegrid-run0-v3
-ensemble-BY2025-samegrid-run0gauss-v5
+tree-robustness-BY2025-samegrid-run0-v3
 ```
+
+`data/new_outputs/archive` and `data/new_outputs/paper_analysis` are excluded
+from this paper-facing release.
 
 To print the exact local and SGE cluster commands for those folders:
 
@@ -50,10 +57,8 @@ wrapper scripts activate the `EZClimate` conda environment by default; set
 The cluster wrapper scripts are `scripts/run_*_array_job.sh`; each calls the
 matching `scripts/main_*_cluster.py` script and writes results under
 `data/new_outputs/$OUTPUT_FOLDER`. Use the `OUTPUT_FOLDER` names above when
-rerunning individual jobs by hand. The paper-facing frontier is built from
-period-length-5 robustness outputs; annual period-length-1 frontier outputs are
-not included in this release. The full Gaussian ensemble rerun is `1-9000` for
-`ensemble-BY2025-samegrid-run0gauss-v5`.
+rerunning individual jobs by hand. The full Gaussian ensemble rerun is `1-9000`
+for `ensemble-BY2025-samegrid-run0gauss-v5`.
 
 After the run outputs are present, regenerate the paper-facing tables and
 figures with:
