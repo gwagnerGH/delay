@@ -1,0 +1,10 @@
+grid_index,label
+0,tech_chg0_tech_scale0
+1,tech_chg0_tech_scale1.5
+2,tech_chg0_tech_scale3
+3,tech_chg1.5_tech_scale0
+4,tech_chg1.5_tech_scale1.5
+5,tech_chg1.5_tech_scale3
+6,tech_chg3_tech_scale0
+7,tech_chg3_tech_scale1.5
+8,tech_chg3_tech_scale3

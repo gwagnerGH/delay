@@ -1,0 +1,25 @@
+name: EZClimate
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.11
+  - pip
+  - numpy
+  - pandas
+  - scipy
+  - scikit-learn
+  - statsmodels
+  - matplotlib
+  - seaborn
+  - xarray
+  - numba
+  - ipykernel
+  - ipython
+  - ipywidgets
+  - requests
+  - pyyaml
+  - pip:
+      - ezclimate==2.0.7
+      - tikzplotlib==0.10.1

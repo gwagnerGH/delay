@@ -1,0 +1,7 @@
+figure,description
+gaussian_ensemble_dwl_four_panel.png,"Gaussian ensemble posterior DWL, tail probabilities, and compensation."
+gaussian_ensemble_mechanisms_two_panel.png,Posterior emissions and re-entry price mechanism diagnostics.
+gaussian_price_mitigation_fanchart_delay5.png,Posterior carbon-price and mitigation paths for a five-year delay.
+gaussian_price_mitigation_fanchart_delay10.png,Posterior carbon-price and mitigation paths for a ten-year delay.
+gaussian_price_mitigation_fanchart_delay15.png,Posterior carbon-price and mitigation paths for a fifteen-year delay.
+gaussian_parameter_sensitivity.png,Rank correlations between sampled parameters and DWL.

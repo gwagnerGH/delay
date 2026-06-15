@@ -1,0 +1,19 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Local environments and build artifacts
+.venv/
+venv/
+env/
+build/
+dist/
+
+# Cluster/runtime logs
+*.sh.e*
+*.sh.o*
+*.sh.pe*
+*.sh.po*
+bash.[eop]*[0-9]*
+logs/
