@@ -27,30 +27,6 @@ CLUSTER_RUNS = (
         },
     },
     {
-        "name": "annual delay frontier",
-        "array": "1-21",
-        "command": "bash scripts/run_delay_frontier_array_job.sh",
-        "env": {
-            "OUTPUT_FOLDER": "delay-frontier-BY2025-samegrid-run0-v4",
-            "FRONTIER_GRID": "annual",
-            "FRONTIER_PARAMETER_SOURCE": "mean",
-            "TEST_MODE": "0",
-        },
-    },
-    {
-        "name": "annual delay-frontier robustness",
-        "array": "1-105",
-        "command": "bash scripts/run_delay_frontier_array_job.sh",
-        "env": {
-            "OUTPUT_FOLDER": "delay-frontier-BY2025-robustness-v2",
-            "FRONTIER_GRID": "annual",
-            "FRONTIER_PARAMETER_SOURCE": "robustness",
-            "FRONTIER_PARAMETER_SPECS": "low_eis,high_eis,high_ra,low_ra,no_endogenous_learning",
-            "IMPORT_DAMAGES": "1",
-            "TEST_MODE": "0",
-        },
-    },
-    {
         "name": "partial mitigation",
         "array": "1-63",
         "command": "bash scripts/run_partial_array_job.sh",
