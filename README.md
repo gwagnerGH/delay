@@ -27,15 +27,6 @@ damage-robustness-BY2025-samegrid-run0-v3
 ensemble-BY2025-samegrid-run0gauss-v5
 ```
 
-The ensemble node-price table is stored as
-`data/new_outputs/ensemble-BY2025-samegrid-run0gauss-v5/analysis/ensemble-BY2025-samegrid-run0gauss-v5_node_prices.csv.gz`
-to stay below GitHub's normal file-size limit. It is not required by
-`notebooks/paper_facing_plots.ipynb`; to restore the plain CSV, run:
-
-```bash
-gunzip -k data/new_outputs/ensemble-BY2025-samegrid-run0gauss-v5/analysis/ensemble-BY2025-samegrid-run0gauss-v5_node_prices.csv.gz
-```
-
 To print the exact local and SGE cluster commands for those folders:
 
 ```bash
