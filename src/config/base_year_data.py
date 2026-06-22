@@ -33,6 +33,16 @@ class BaseYearReference:
 
 
 BASE_YEAR_REFERENCES: Dict[int, BaseYearReference] = {
+    1975: BaseYearReference(
+        cumemit_reference_year=1974,
+        # 1000 GtCO2, cumulative fossil/industrial plus land-use-change CO2
+        # through 1974 from Global Carbon Budget 2025 historical budget.
+        cumemit_value=1.096959078076,
+        co2_reference_year=1975,
+        # ppm, NOAA/Scripps Mauna Loa annual mean used because the NOAA global
+        # annual series begins in 1979.
+        co2_concentration=331.13,
+    ),
     2020: BaseYearReference(
         cumemit_reference_year=2019,
         cumemit_value=2.39,  # 1000 GtCO2

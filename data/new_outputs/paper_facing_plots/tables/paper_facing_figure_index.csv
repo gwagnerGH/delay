@@ -1,6 +1,0 @@
-figure,paper_section,purpose
-annual_delay_frontier_four_panel.png,Five-year frontier section,"Five-year-grid DWL with compensation axis, marginal utility loss, emissions, and re-entry price by delay length."
-marginal_value_one_year_four_panel.png,Annual frontier section,Discrete marginal value of avoiding one more year of delay.
-policy_reentry_paths_four_panel.png,Why delayed policy re-enters differently,Expected carbon price and mitigation paths over the full decision horizon.
-partial_mitigation_four_panel.png,Partial mitigation section,"Remaining DWL, avoided DWL, marginal DWL avoided, and re-entry price under partial early mitigation."
-robustness_ranges_four_panel.png,Uncertainty and robustness,Structured deterministic robustness lines by tested variant before Gaussian ensemble results.

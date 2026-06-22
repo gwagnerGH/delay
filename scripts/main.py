@@ -112,7 +112,7 @@ def main():
                                     baseline_emission_model.baseline_gtco2))
         c = BPWCost(t, emit_at_0=emit_at_0,
                     baseline_num=baseline_num, tech_const=tech_chg,
-                    tech_scale=tech_scale, cons_at_0=61880.0,
+                    tech_scale=tech_scale, cons_at_0=86252.0, # 2025 estimated from https://data.worldbank.org/indicator/NE.CON.TOTL.CD
                     backstop_premium=bs_premium, no_free_lunch=no_free_lunch)
 
         """Damage class. We set draws to the number of Monte Carlo samples to take

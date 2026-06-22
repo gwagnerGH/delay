@@ -1,9 +1,0 @@
-figure,description
-uncertainty_candidate_1_tail_frontier.png,"Tail-risk 2x2: posterior DWL levels, exceedance probabilities, tail severity, and tail concentration."
-uncertainty_candidate_2_risk_price.png,"Risk-price 2x2: welfare risk, re-entry carbon price uncertainty, joint price-welfare tail, and posterior price paths."
-uncertainty_candidate_3_preference_map.png,"Preference-channel 2x2: EIS/PRTP states, rank correlations, EIS gradient, and preference-state tail heatmap."
-uncertainty_eis_ra_heatmap_dwl_contours.png,"EIS/RA heatmap for the 15-year delay with DWL color and median, 90th, and 95th percentile contours."
-uncertainty_eis_prtp_smooth_heatmap_dwl_contours.png,"Smooth EIS/PRTP heatmap for the 15-year delay with DWL color and median, 90th, and 95th percentile contours."
-uncertainty_eis_prtp_quintile_heatmap_dwl_contours.png,"Binned EIS/PRTP quintile heatmap for the 15-year delay with DWL color and median, 90th, and 95th percentile contours."
-uncertainty_eis_ra_line_interaction.png,"Line interaction plot: EIS quintile bins on the x-axis, median and 90th-percentile DWL by RA tercile, with bootstrap uncertainty bands."
-uncertainty_eis_prtp_line_interaction.png,"Line interaction plot: EIS quintile bins on the x-axis, median and 90th-percentile DWL by PRTP tercile, without uncertainty bands."

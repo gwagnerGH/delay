@@ -159,10 +159,12 @@ class BPWEmissionBaseline(EmissionBaseline):
         of a given baseline.
     """
 
-    def __init__(self, tree, baseline_num, emissions_time_step=None):
+    def __init__(self, tree, baseline_num, emissions_time_step=None,
+                 baseline_source='ssp'):
         self.tree = tree
         self.baseline_num = baseline_num
         self.emissions_time_step = emissions_time_step
+        self.baseline_source = baseline_source
         self.times = None
         self.baseline_gtco2 = None
         self.baseline_ppm = None
@@ -199,19 +201,7 @@ class BPWEmissionBaseline(EmissionBaseline):
         *Raises ValueError if baseline_num is outside acceptable range.
         """
 
-        time, _, run_data = import_csv("SSP_baselines", delimiter=',',
-                                                header=True, indices=1)
-
-        # change time from an array of strings to integers
-        time = np.array(time, dtype=int)
-
-        # check to see if the baseline_num is valid. if it is, select the
-        # correct run data from run_data.
-        if self.baseline_num > 5 or self.baseline_num <= 0:
-            raise ValueError("Invalid baseline_num parameter; must be a value \
-                             between 1 and 5.")
-        else:
-            baseline_gtco2_2100 = run_data[self.baseline_num - 1]
+        time, baseline_gtco2_2100 = self._baseline_input_series()
 
         # make extended baseline in gtco2
         self._make_extension(time, baseline_gtco2_2100,
@@ -259,6 +249,68 @@ class BPWEmissionBaseline(EmissionBaseline):
         # Precompute shifted indices used for node-by-node mitigation path construction
         self._shifted_dec_inds = self.dec_times_ind.copy()
         self._shifted_dec_inds[1:] += 1
+
+    def _ssp_baseline_input_series(self):
+        """Return the configured SSP baseline through 2100."""
+
+        time, _, run_data = import_csv("SSP_baselines", delimiter=',',
+                                       header=True, indices=1)
+
+        time = np.array(time, dtype=int)
+
+        if self.baseline_num > 5 or self.baseline_num <= 0:
+            raise ValueError("Invalid baseline_num parameter; must be a value "
+                             "between 1 and 5.")
+        baseline_gtco2_2100 = run_data[self.baseline_num - 1]
+        return time, baseline_gtco2_2100
+
+    def _historical_splice_input_series(self):
+        """Return observed 1975-2025 emissions spliced to the SSP baseline.
+
+        The historical segment is total anthropogenic CO2 emissions, defined as
+        fossil/industrial plus land-use-change emissions from Global Carbon
+        Budget 2025. The 2025 point is the GCB 2025 projection. From 2030 on,
+        the configured SSP baseline is used unchanged.
+        """
+
+        hist_header, hist_data = import_csv(
+            "gcb2025_historical_total_co2", delimiter=',', header=True
+        )
+        if hist_header != ['year', 'total_gtco2']:
+            raise ValueError(
+                "gcb2025_historical_total_co2.csv must have columns "
+                "year,total_gtco2."
+            )
+
+        hist_years = hist_data[:, 0].astype(int)
+        hist_gtco2 = hist_data[:, 1].astype(float)
+        if hist_years[0] != 1975 or hist_years[-1] != 2025:
+            raise ValueError(
+                "Historical CO2 baseline must span 1975 through 2025."
+            )
+        if not np.all(np.diff(hist_years) == 1):
+            raise ValueError("Historical CO2 baseline must be annual.")
+
+        ssp_years, ssp_gtco2 = self._ssp_baseline_input_series()
+        post_2025 = ssp_years > hist_years[-1]
+        if not post_2025.any():
+            raise ValueError("SSP baseline must include years after 2025.")
+
+        return (
+            np.hstack((hist_years, ssp_years[post_2025])),
+            np.hstack((hist_gtco2, ssp_gtco2[post_2025])),
+        )
+
+    def _baseline_input_series(self):
+        source = self.baseline_source.lower()
+        if source in ('ssp', 'default'):
+            return self._ssp_baseline_input_series()
+        if source in ('historical_splice', 'historical_splice_ssp'):
+            return self._historical_splice_input_series()
+        raise ValueError(
+            "baseline_source must be 'ssp' or 'historical_splice' "
+            f"(got {self.baseline_source!r})."
+        )
 
     def _make_extension(self, time, baseline_gtco2_2100, extension_year):
         """Make baseline extensions from 2100 -> extension_year.

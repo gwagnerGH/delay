@@ -64,6 +64,8 @@ class EZUtility(object):
         constant growth rate.
     """
 
+    _LOG_EIS_TOL = 1e-12
+
     def __init__(self, tree, damage, cost, period_len, eis=0.9, ra=7.0,
                  time_pref=0.005, cons_growth=0.015):
         self.tree = tree
@@ -73,10 +75,40 @@ class EZUtility(object):
         self.cons_growth = cons_growth
         self.growth_term = 1.0 + self.cons_growth
         self.r = 1.0 - 1.0/eis
+        self.is_log_eis = abs(self.r) <= self._LOG_EIS_TOL
         self.a = 1.0 - ra
         self.b = (1.0-time_pref)**period_len
         self.potential_cons = (np.ones(self.tree.decision_times.shape) \
                                + self.cons_growth)**self.tree.decision_times
+
+    def _intertemporal_aggregate(self, consumption, cert_equiv):
+        """Stable CES aggregate, including the EIS=1 logarithmic limit."""
+
+        consumption = np.asarray(consumption)
+        cert_equiv = np.asarray(cert_equiv)
+        log_consumption = np.log(consumption)
+        log_ce_ratio = np.log(cert_equiv) - log_consumption
+
+        if self.is_log_eis:
+            log_utility = log_consumption + self.b * log_ce_ratio
+        else:
+            log_utility = log_consumption + (
+                np.log1p(self.b * np.expm1(self.r * log_ce_ratio)) / self.r
+            )
+        return np.exp(log_utility)
+
+    def _terminal_utility(self, consumption):
+        """Stable terminal continuation value, including the EIS=1 limit."""
+
+        log_growth = np.log(self.growth_term)
+        if self.is_log_eis:
+            continuation_log = self.b * log_growth / (1.0 - self.b)
+        else:
+            continuation_log = -np.log1p(
+                -(self.b / (1.0 - self.b))
+                * np.expm1(self.r * log_growth)
+            ) / self.r
+        return np.asarray(consumption) * np.exp(continuation_log)
 
     def utility(self, m, return_trees=False):
         """Calculating utility for the specific mitigation decisions `m`.
@@ -159,15 +191,14 @@ class EZUtility(object):
         # calc cost in period, store value, and calculate the remaining values
         period_cost = self.cost.cost(self.tree.num_periods, period_mitigation,
                                      period_ave_mitigation)
-        continuation = (1.0 / (1.0 - self.b*(self.growth_term**self.r)))**(1.0/self.r)
-
         cost_tree.set_value(cost_tree.last_period, period_cost)
         period_consumption = self.potential_cons[-1] * (1.0 - period_damage)
         period_consumption[period_consumption<=0.0] = 1e-18
         cons_tree.set_value(cons_tree.last_period, period_consumption)
-        utility_tree.set_value(utility_tree.last_period,
-                               (1.0 - self.b)**(1.0/self.r) * cons_tree.last \
-                               * continuation)
+        utility_tree.set_value(
+            utility_tree.last_period,
+            self._terminal_utility(cons_tree.last),
+        )
 
     def _utility_generator(self, m, utility_tree, cons_tree, cost_tree,
                            ce_tree, cons_adj=0.0, period_consadj=None):
@@ -241,7 +272,7 @@ class EZUtility(object):
             ce_term = self.b * cert_equiv**self.r
             ce_tree.set_value(period, ce_term)
             cons_tree.set_value(period, period_consumption)
-            u = ((1.0-self.b)*period_consumption**self.r + ce_term)**(1.0/self.r)
+            u = self._intertemporal_aggregate(period_consumption, cert_equiv)
             yield u, period
 
     def _certain_equivalence(self, period, damage_period, utility_tree):
@@ -359,18 +390,24 @@ class EZUtility(object):
         i = len(utility_tree)-2
         for u, period in it:
             if period == periods[1]:
-                mu_0 = (1.0-self.b) * (u/cons_tree[period])**(1.0-self.r)
-                next_term = self.b * (1.0-self.b) / (1.0-self.b*self.growth_term**self.r)
-                mu_1 = (u**(1.0-self.r)) * next_term * (cons_tree.last**(self.r-1.0))
-                u += (final_cons_eps+period_cons_eps[-1]+node_cons_eps.last) * mu_1
-                u +=  (period_cons_eps[i]+node_cons_eps.tree[period]) * mu_0
+                final_adjustment = final_cons_eps + period_cons_eps[-1] + node_cons_eps.last
+                current_adjustment = period_cons_eps[i] + node_cons_eps.tree[period]
+                if np.any(final_adjustment != 0.0) or np.any(current_adjustment != 0.0):
+                    self._require_nonlog_marginal_adjustments()
+                    mu_0 = (1.0-self.b) * (u/cons_tree[period])**(1.0-self.r)
+                    next_term = self.b * (1.0-self.b) / (1.0-self.b*self.growth_term**self.r)
+                    mu_1 = (u**(1.0-self.r)) * next_term * (cons_tree.last**(self.r-1.0))
+                    u += final_adjustment * mu_1
+                    u += current_adjustment * mu_0
                 utility_tree.set_value(period, u)
             else:
-                mu_0, m_1, m_2 = self._period_marginal_utility(period,
-                                                               utility_tree,
-                                                               cons_tree,
-                                                               ce_tree)
-                u += (period_cons_eps[i] + node_cons_eps.tree[period])*mu_0
+                current_adjustment = period_cons_eps[i] + node_cons_eps.tree[period]
+                if np.any(current_adjustment != 0.0):
+                    self._require_nonlog_marginal_adjustments()
+                    mu_0, m_1, m_2 = self._period_marginal_utility(
+                        period, utility_tree, cons_tree, ce_tree
+                    )
+                    u += current_adjustment * mu_0
                 utility_tree.set_value(period, u)
             i -= 1
 
@@ -378,6 +415,14 @@ class EZUtility(object):
             return utility_tree, cons_tree, cost_tree, ce_tree
 
         return utility_tree.tree[0]
+
+    def _require_nonlog_marginal_adjustments(self):
+        if self.is_log_eis:
+            raise NotImplementedError(
+                "Linearized marginal-utility adjustments are not implemented "
+                "for EIS=1. Use first_period_consadj or period_consadj so utility "
+                "is recomputed from exact consumption adjustments."
+            )
 
     def _period_marginal_utility(self, period, utility_tree, cons_tree, ce_tree):
         """Marginal utility for each node in a period.

@@ -95,14 +95,16 @@ def main():
                               baseline_emission_model_baseline.baseline_gtco2)
         c_baseline = BPWCost(t_baseline, emit_at_0=emit_at_0_baseline, baseline_num=baseline_num,
                     tech_const=tech_chg, tech_scale=tech_scale,
-                    cons_at_0=61880.0, backstop_premium=bs_premium,
+                    cons_at_0=86252.0, # 2025 estimated from https://data.worldbank.org/indicator/NE.CON.TOTL.CD
+                    backstop_premium=bs_premium,
                     no_free_lunch=no_free_lunch)
 
         emit_at_0_delay = np.interp(2030, baseline_emission_model_delay.times,
                               baseline_emission_model_delay.baseline_gtco2)
         c_delay = BPWCost(t_delay, emit_at_0=emit_at_0_delay, baseline_num=baseline_num,
                     tech_const=tech_chg, tech_scale=tech_scale,
-                    cons_at_0=61880.0, backstop_premium=bs_premium,
+                    cons_at_0=86252.0, # 2025 estimated from https://data.worldbank.org/indicator/NE.CON.TOTL.CD
+                    backstop_premium=bs_premium,
                     no_free_lunch=no_free_lunch)
 
 

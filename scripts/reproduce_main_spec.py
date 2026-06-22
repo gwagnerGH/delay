@@ -18,56 +18,23 @@ LOCAL_RUNS = (
 
 CLUSTER_RUNS = (
     {
-        "name": "mean parameter vector",
-        "array": "1-3",
-        "command": "bash scripts/run_mean_parameter_array_job.sh",
-        "env": {
-            "OUTPUT_FOLDER": "mean-parameter-BY2025-samegrid-run0-v3",
-            "TEST_MODE": "0",
-        },
-    },
-    {
-        "name": "5-year delay frontier",
+        "name": "five-year delay frontier",
         "array": "1-5",
         "command": "bash scripts/run_delay_frontier_array_job.sh",
         "env": {
-            "OUTPUT_FOLDER": "delay-frontier-BY2025-fiveyear-run0-v1",
+            "OUTPUT_FOLDER": "delay-frontier-BY2025-fiveyear-cons2025-run0-v2",
             "FRONTIER_GRID": "five_year",
             "FRONTIER_PARAMETER_SOURCE": "mean",
             "TEST_MODE": "0",
         },
     },
     {
-        "name": "5-year delay-frontier robustness",
+        "name": "five-year delay-frontier robustness",
         "array": "1-25",
         "command": "bash scripts/run_delay_frontier_array_job.sh",
         "env": {
-            "OUTPUT_FOLDER": "delay-frontier-BY2025-fiveyear-robustness-v1",
+            "OUTPUT_FOLDER": "delay-frontier-BY2025-fiveyear-cons2025-robustness-v2",
             "FRONTIER_GRID": "five_year",
-            "FRONTIER_PARAMETER_SOURCE": "robustness",
-            "FRONTIER_PARAMETER_SPECS": "low_eis,high_eis,high_ra,low_ra,no_endogenous_learning",
-            "IMPORT_DAMAGES": "1",
-            "TEST_MODE": "0",
-        },
-    },
-    {
-        "name": "annual delay frontier",
-        "array": "1-21",
-        "command": "bash scripts/run_delay_frontier_array_job.sh",
-        "env": {
-            "OUTPUT_FOLDER": "delay-frontier-BY2025-samegrid-run0-v4",
-            "FRONTIER_GRID": "annual",
-            "FRONTIER_PARAMETER_SOURCE": "mean",
-            "TEST_MODE": "0",
-        },
-    },
-    {
-        "name": "annual delay-frontier robustness",
-        "array": "1-105",
-        "command": "bash scripts/run_delay_frontier_array_job.sh",
-        "env": {
-            "OUTPUT_FOLDER": "delay-frontier-BY2025-robustness-v2",
-            "FRONTIER_GRID": "annual",
             "FRONTIER_PARAMETER_SOURCE": "robustness",
             "FRONTIER_PARAMETER_SPECS": "low_eis,high_eis,high_ra,low_ra,no_endogenous_learning",
             "IMPORT_DAMAGES": "1",
@@ -79,7 +46,7 @@ CLUSTER_RUNS = (
         "array": "1-63",
         "command": "bash scripts/run_partial_array_job.sh",
         "env": {
-            "OUTPUT_FOLDER": "partial-mitigation-BY2025-samegrid-run0-cap-v3",
+            "OUTPUT_FOLDER": "partial-mitigation-BY2025-cons2025-samegrid-run0-cap-v1",
             "TEST_MODE": "0",
         },
     },
@@ -88,7 +55,7 @@ CLUSTER_RUNS = (
         "array": "1-15",
         "command": "bash scripts/run_tree_robustness_array_job.sh",
         "env": {
-            "OUTPUT_FOLDER": "tree-robustness-BY2025-samegrid-run0-v3",
+            "OUTPUT_FOLDER": "tree-robustness-BY2025-cons2025-samegrid-run0-v1",
             "TEST_MODE": "0",
         },
     },
@@ -97,7 +64,7 @@ CLUSTER_RUNS = (
         "array": "1-81",
         "command": "bash scripts/run_preference_grid_array_job.sh",
         "env": {
-            "OUTPUT_FOLDER": "preference-grid-BY2025-samegrid-run0-v3",
+            "OUTPUT_FOLDER": "preference-grid-BY2025-cons2025-samegrid-run0-v1",
             "TEST_MODE": "0",
         },
     },
@@ -106,7 +73,7 @@ CLUSTER_RUNS = (
         "array": "1-27",
         "command": "bash scripts/run_technology_grid_array_job.sh",
         "env": {
-            "OUTPUT_FOLDER": "technology-grid-BY2025-samegrid-run0-v3",
+            "OUTPUT_FOLDER": "technology-grid-BY2025-cons2025-samegrid-run0-v1",
             "TEST_MODE": "0",
         },
     },
@@ -115,7 +82,7 @@ CLUSTER_RUNS = (
         "array": "1-24",
         "command": "bash scripts/run_damage_robustness_array_job.sh",
         "env": {
-            "OUTPUT_FOLDER": "damage-robustness-BY2025-samegrid-run0-v3",
+            "OUTPUT_FOLDER": "damage-robustness-BY2025-cons2025-samegrid-run0-v1",
             "TEST_MODE": "0",
         },
     },
@@ -124,7 +91,7 @@ CLUSTER_RUNS = (
         "array": "1-9000",
         "command": "bash scripts/run_ensemble_delayed_array_job.sh",
         "env": {
-            "OUTPUT_FOLDER": "ensemble-BY2025-samegrid-run0gauss-v5",
+            "OUTPUT_FOLDER": "ensemble-BY2025-cons2025-samegrid-run0gauss-eisfix-v1",
             "TEST_MODE": "0",
         },
     },

@@ -79,7 +79,7 @@ from src.config import (
 )
 
 
-N_SAMPLES = 3000
+N_SAMPLES = 1000
 
 delay_years = [5, 10, 15]
 
@@ -345,18 +345,32 @@ def map_to_calendar_years(tree, period_values, target_years=COMMON_YEARS, start_
     return result
 
 
-def append_results_to_csv(results_dict, csv_path, max_retries=10, retry_delay=1.0): 
+def acquire_file_lock(file_obj, timeout=120.0, poll_interval=0.25):
+    """Acquire an exclusive lock without allowing a task to wait forever."""
+    deadline = time.monotonic() + timeout
+    while True:
+        try:
+            fcntl.flock(file_obj.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            return True
+        except BlockingIOError:
+            if time.monotonic() >= deadline:
+                return False
+            time.sleep(poll_interval)
+
+
+def append_results_to_csv(results_dict, csv_path, max_retries=10, retry_delay=1.0,
+                          lock_timeout=120.0):
     # ConstraintAnalysis results are written in a joint CSV   
     os.makedirs(os.path.dirname(csv_path), exist_ok=True)
-    file_exists = os.path.exists(csv_path)
-    
     for attempt in range(max_retries):
         try:
             with open(csv_path, 'a', newline='') as f:
-                fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+                if not acquire_file_lock(f, timeout=lock_timeout):
+                    print(f"ERROR: Timed out waiting for CSV lock: {csv_path}")
+                    return False
                 
                 try:
-                    if not file_exists or os.path.getsize(csv_path) == 0:
+                    if os.path.getsize(csv_path) == 0:
                         writer = csv.DictWriter(f, fieldnames=results_dict.keys())
                         writer.writeheader()
                     else:
@@ -364,7 +378,6 @@ def append_results_to_csv(results_dict, csv_path, max_retries=10, retry_delay=1.
                     
                     writer.writerow(results_dict)
                     f.flush()
-                    os.fsync(f.fileno())
                     
                 finally:
                     fcntl.flock(f.fileno(), fcntl.LOCK_UN)
@@ -394,23 +407,25 @@ def format_optional(value, fmt, na_value="NA", prefix="", suffix=""):
     return f"{prefix}{format(value, fmt)}{suffix}"
 
 
-def append_rows_to_csv(rows, csv_path, max_retries=10, retry_delay=1.0):
+def append_rows_to_csv(rows, csv_path, max_retries=10, retry_delay=1.0,
+                       lock_timeout=120.0):
     """Append a list of dictionaries to a CSV using the same cluster-safe lock."""
 
     if not rows:
         return True
 
     os.makedirs(os.path.dirname(csv_path), exist_ok=True)
-    file_exists = os.path.exists(csv_path)
     fieldnames = list(rows[0].keys())
 
     for attempt in range(max_retries):
         try:
             with open(csv_path, 'a', newline='') as f:
-                fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+                if not acquire_file_lock(f, timeout=lock_timeout):
+                    print(f"ERROR: Timed out waiting for CSV lock: {csv_path}")
+                    return False
 
                 try:
-                    if not file_exists or os.path.getsize(csv_path) == 0:
+                    if os.path.getsize(csv_path) == 0:
                         writer = csv.DictWriter(f, fieldnames=fieldnames)
                         writer.writeheader()
                     else:
@@ -418,7 +433,6 @@ def append_rows_to_csv(rows, csv_path, max_retries=10, retry_delay=1.0):
 
                     writer.writerows(rows)
                     f.flush()
-                    os.fsync(f.fileno())
 
                 finally:
                     fcntl.flock(f.fileno(), fcntl.LOCK_UN)
@@ -438,13 +452,14 @@ def append_rows_to_csv(rows, csv_path, max_retries=10, retry_delay=1.0):
 
 def build_node_price_rows(sample_id, delay_year, task_id, scenario, tree, climate_output,
                           mitigation, run_type, tree_spec, decision_times_label,
-                          params, comparison_type):
+                          params, comparison_type, output_metadata=None):
     """Build long-form node price output for notebook posterior analysis."""
 
+    metadata = dict(output_metadata or {})
     rows = []
     for node in range(tree.num_decision_nodes):
         period = tree.get_period(node)
-        rows.append({
+        row = {
             'sample_index': sample_id,
             'delay_year': delay_year,
             'task_id': task_id,
@@ -468,8 +483,29 @@ def build_node_price_rows(sample_id, delay_year, task_id, scenario, tree, climat
             'tech_scale': float(params['tech_scale']),
             'bs_premium': float(params['bs_premium']),
             'growth': float(params['growth']),
-        })
+        }
+        row.update(metadata)
+        rows.append(row)
     return rows
+
+
+class ZeroDamage(BPWDamage):
+    """Damage object for Shapley coalitions with climate damages switched off."""
+
+    def damage_simulation(self, filename="zero_damages", save_simulation=True,
+                          dam_func=0, tip_on=True, d_unc=1, t_unc=1):
+        self.d = np.zeros((self.dnum, self.tree.num_final_states, self.tree.num_periods))
+        self.d_rcomb = self.d
+        print("Zero climate damages active; skipped damage simulation.")
+
+    def import_damages(self, file_name="zero_damages"):
+        self.damage_simulation(filename=file_name, save_simulation=False)
+
+    def damage_function(self, m, period, is_last=False):
+        return np.zeros(self.tree.get_num_nodes_period(period))
+
+    def _damage_function_node(self, m, node, is_last=False):
+        return 0.0
 
 
 def get_sample_filename():
@@ -592,7 +628,9 @@ def run_ensemble_delayed_analysis(sample_index, delay_year, param_vals,
                                   delay_periods=1,
                                   period_len=5.0,
                                   emissions_time_step=None,
-                                  damage_file_tag=''):
+                                  damage_file_tag='',
+                                  output_metadata=None,
+                                  zero_climate_damages=False):
     
     ra, eis, tech_chg, tech_scale, pref, bs_premium, growth = param_vals[sample_index]
     sample_id = sample_label if sample_label is not None else sample_index
@@ -620,6 +658,7 @@ def run_ensemble_delayed_analysis(sample_index, delay_year, param_vals,
         'period_len': period_len,
         'emissions_time_step': emissions_time_step,
         'damage_file_tag': damage_file_tag,
+        'zero_climate_damages': zero_climate_damages,
     }
     pprint.pprint(model_params)
     
@@ -694,24 +733,25 @@ def run_ensemble_delayed_analysis(sample_index, delay_year, param_vals,
                           baseline_emission_model_baseline.baseline_gtco2)
     c_baseline = BPWCost(t_baseline, emit_at_0=emit_at_0_baseline,
                 baseline_num=baseline, tech_const=tech_chg,
-                tech_scale=tech_scale, cons_at_0=61880.0,
+                tech_scale=tech_scale, cons_at_0=86252.0, # 2025 estimated from https://data.worldbank.org/indicator/NE.CON.TOTL.CD
                 backstop_premium=bs_premium, no_free_lunch=no_free_lunch)
     
     emit_at_0_delay = np.interp(2030, baseline_emission_model_delay.times,
                           baseline_emission_model_delay.baseline_gtco2)
     c_delay = BPWCost(t_delay, emit_at_0=emit_at_0_delay,
                 baseline_num=baseline, tech_const=tech_chg,
-                tech_scale=tech_scale, cons_at_0=61880.0,
+                tech_scale=tech_scale, cons_at_0=86252.0, # 2025 estimatedfrom https://data.worldbank.org/indicator/NE.CON.TOTL.CD
                 backstop_premium=bs_premium, no_free_lunch=no_free_lunch)
     
     # Damage class
     d_m = 0.1
     mitigation_constants = np.arange(0, 1 + d_m, d_m)[::-1]
-    df_baseline = BPWDamage(tree=t_baseline, emit_baseline=baseline_emission_model_baseline,
+    damage_class = ZeroDamage if zero_climate_damages else BPWDamage
+    df_baseline = damage_class(tree=t_baseline, emit_baseline=baseline_emission_model_baseline,
                    climate=climate_baseline, mitigation_constants=mitigation_constants,
                    draws=draws)
 
-    df_delay = BPWDamage(tree=t_delay, emit_baseline=baseline_emission_model_delay,
+    df_delay = damage_class(tree=t_delay, emit_baseline=baseline_emission_model_delay,
                    climate=climate_delay, mitigation_constants=mitigation_constants,
                    draws=draws)
 
@@ -730,7 +770,14 @@ def run_ensemble_delayed_analysis(sample_index, delay_year, param_vals,
     
     print(f"Damage simulation: {damsim_filename_baseline}")
     
-    if import_damages:
+    if zero_climate_damages:
+        df_baseline.damage_simulation(filename=damsim_filename_baseline, save_simulation=False,
+                             dam_func=dam_func, tip_on=tip_on, d_unc=d_unc,
+                             t_unc=t_unc)
+        df_delay.damage_simulation(filename=damsim_filename_delay, save_simulation=False,
+                             dam_func=dam_func, tip_on=tip_on, d_unc=d_unc,
+                             t_unc=t_unc)
+    elif import_damages:
         try:
             df_baseline.import_damages(file_name=damsim_filename_baseline)
             df_delay.import_damages(file_name=damsim_filename_delay)
@@ -980,6 +1027,7 @@ def run_ensemble_delayed_analysis(sample_index, delay_year, param_vals,
         'carbon_price_delayed': float(c_delay.price(0, m_delayed[0], 0)),
         'carbon_price_optimal': float(c_baseline.price(0, m_optimal[0], 0)),
     }
+    results_dict.update(output_metadata or {})
     results_dict.update(frontier_metrics)
     
     csv_path = os.path.join(DATA_DIR, out_folder, 'analysis', f'{out_folder}_consolidated_results.csv')
@@ -1051,6 +1099,7 @@ def run_ensemble_delayed_analysis(sample_index, delay_year, param_vals,
         'u_delayed': float(u_delayed),
         'utility_loss': float(ca.con_cost),
     }
+    timeseries_dict.update(output_metadata or {})
     
     # Add timeseries organized by variable type (mitigation, temperature, concentration, damage, price)
     # For each variable, add optimal years first, then delayed years
@@ -1100,12 +1149,12 @@ def run_ensemble_delayed_analysis(sample_index, delay_year, param_vals,
     node_price_rows.extend(build_node_price_rows(
         sample_id, delay_year, task_id, 'optimal', t_baseline, co_opt,
         m_optimal, run_type, tree_spec, decision_times_label, model_params,
-        comparison_type
+        comparison_type, output_metadata=output_metadata
     ))
     node_price_rows.extend(build_node_price_rows(
         sample_id, delay_year, task_id, 'delayed', t_delay, co_delay,
         m_delayed, run_type, tree_spec, delay_decision_times_label, model_params,
-        comparison_type
+        comparison_type, output_metadata=output_metadata
     ))
 
     node_prices_csv_path = os.path.join(DATA_DIR, out_folder, 'analysis',
