@@ -46,5 +46,4 @@ python scripts/reproduce_main_spec.py
 
 Cluster submission assumes an SGE environment with `grid_run` available. Those commands will likely have to be adjusted.
 
-Post-process the consolidated Gaussian ensemble with `python scripts/postprocess_ensemble_dwl.py <input_csv> <output_csv>`; the inversion uses the model convention `beta = (1 - PRTP)^5`.
-Then run `jupyter nbconvert --to notebook --execute notebooks/paper_facing_plots.ipynb --inplace` to regenerate `data/new_outputs/paper_facing_plots/`.
+Post-process the consolidated Gaussian ensemble with `python scripts/postprocess_ensemble_dwl.py <input_csv> <output_csv>`. Then run `notebooks/paper_facing_plots.ipynb` to regenerate `data/new_outputs/paper_facing_plots/`.
