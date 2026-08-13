@@ -1,9 +1,10 @@
 """Emission baseline class.
 
-Adam M. Bauer
-adammb4@illinois.edu
-University of Illinois at Urbana Champaign
-3.24.2022
+Theo Moers
+tlm2160@columbia.edu
+Columbia University
+
+based originally on Adam Bauer
 
 Contains the abstract class BusinessAsUsual as well as its subclass,
 BPWBusinessAsUsual, which is implemented in CAP6.
@@ -246,9 +247,75 @@ class BPWEmissionBaseline(EmissionBaseline):
         self.baseline_ppm_periods = np.interp(self.decision_years, self.times, self.baseline_ppm)
         self.baseline_cumemit_periods = np.interp(self.decision_years, self.times, self.baseline_cumemit)
         
-        # Precompute shifted indices used for node-by-node mitigation path construction
-        self._shifted_dec_inds = self.dec_times_ind.copy()
-        self._shifted_dec_inds[1:] += 1
+    def _decision_interval_samples(self, period, baseline):
+        """Return a discontinuity-aware emissions path through ``period``.
+
+        A decision made at the start of interval ``i`` governs the complete
+        interval from decision time ``i`` through decision time ``i + 1``.
+        Adjacent intervals therefore contain two samples at their shared
+        boundary: the left-limit value under the old control and the
+        right-limit value under the new control.  The duplicate has zero width
+        in trapezoidal integration, so it represents the policy jump without
+        spuriously blending controls across an entire emissions-grid step.
+
+        Returns
+        -------
+        trunc_times : ndarray
+            Calendar-year samples, including duplicated internal boundaries.
+        raw_baseline : ndarray
+            Unmitigated emissions evaluated at ``trunc_times``.
+        interval_indices : ndarray
+            Decision-interval index controlling every returned sample.
+        """
+
+        period = int(period)
+        if period < 0 or period > self.tree.num_periods:
+            raise ValueError("period is outside the decision tree")
+        if baseline not in ("ppm", "gtco2"):
+            raise ValueError("baseline must be 'ppm' or 'gtco2'")
+
+        raw_source = (
+            self.baseline_ppm if baseline == "ppm" else self.baseline_gtco2
+        )
+        if period == 0:
+            return (
+                np.asarray(self.times[:1]),
+                np.zeros(1, dtype=float),
+                np.full(1, -1, dtype=int),
+            )
+
+        time_segments = []
+        baseline_segments = []
+        interval_segments = []
+        for interval in range(period):
+            low = int(self.dec_times_ind[interval])
+            high = int(self.dec_times_ind[interval + 1]) + 1
+            time_segments.append(np.asarray(self.times[low:high]))
+            baseline_segments.append(
+                np.asarray(raw_source[low:high], dtype=float)
+            )
+            interval_segments.append(
+                np.full(high - low, interval, dtype=int)
+            )
+        return (
+            np.concatenate(time_segments),
+            np.concatenate(baseline_segments),
+            np.concatenate(interval_segments),
+        )
+
+    @staticmethod
+    def _cumulative_trapezoid_preserve_jumps(integrand, times):
+        """Cumulative trapezoid that retains duplicated jump boundaries."""
+
+        integrand = np.asarray(integrand, dtype=float)
+        times = np.asarray(times, dtype=float)
+        cumulative = np.zeros_like(integrand, dtype=float)
+        if len(integrand) > 1:
+            increments = 0.5 * np.diff(times) * (
+                integrand[:-1] + integrand[1:]
+            )
+            cumulative[1:] = np.cumsum(increments)
+        return cumulative
 
     def _ssp_baseline_input_series(self):
         """Return the configured SSP baseline through 2100."""
@@ -433,42 +500,22 @@ class BPWEmissionBaseline(EmissionBaseline):
             if is_last:
                 period += 1
 
-            # find path we've taken to get to current node
-            path = self.tree.get_path(node)
-
-            # make mitigation for given path
-            mit = m[path]
-
-            # index of node time
-            node_time_index = self.dec_times_ind[period]
-
-            # truncate times that the mitigated baseline is evaluated at (this
-            # can be used for calculating the cumulative emissions after making
-            # the 
-            trunc_times = self.times[:node_time_index + 1]
-
-            # make empty mitigated baseline
-            mitigated_baseline = np.zeros_like(trunc_times, dtype = np.float32)
-
-            # fill in mitigated_baseline using shifted decision indices so the
-            # action at a decision time is excluded from the preceding interval
-            for i in range(period):
-                tmp_ind_low = self._shifted_dec_inds[i]
-                tmp_ind_high = self._shifted_dec_inds[i+1]
-                try:
-                    mitigated_baseline[tmp_ind_low:tmp_ind_high] = \
-                            baseline_dict[tmp_baseline][tmp_ind_low:tmp_ind_high]\
-                            * (1 - mit[i])
-                except KeyError:
-                    print("Invalid baseline. Only 'ppm', 'gtco2', and 'cumemit'\
-                          are implemented.")
-                    raise
+            path = np.asarray(self.tree.get_path(node), dtype=int)
+            trunc_times, raw_baseline, interval_indices = \
+                self._decision_interval_samples(period, tmp_baseline)
+            if period == 0:
+                mitigated_baseline = np.zeros_like(raw_baseline)
+            else:
+                controlling_nodes = path[interval_indices]
+                mitigated_baseline = raw_baseline * (
+                    1.0 - np.asarray(m, dtype=float)[controlling_nodes]
+                )
 
             if baseline == 'cumemit':
                 mitigated_baseline = self.CUMEMIT_BASE_YEAR + 10**(-3) * \
-                                     get_integral_var_ub(mitigated_baseline,
-                                                         trunc_times,
-                                                         trunc_times)
+                    self._cumulative_trapezoid_preserve_jumps(
+                        mitigated_baseline, trunc_times
+                    )
 
             return mitigated_baseline, trunc_times
 

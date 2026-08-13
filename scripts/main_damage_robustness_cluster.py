@@ -18,9 +18,10 @@ configure_paths()
 
 import main_ensemble_delayed_cluster as ensemble
 from src.config import GAUSSIAN_PRIOR_SET_NAME, PARAMETER_PRIOR_DIMS, RUN0_PARAMETER_VALUES
+from src.config.parameter_overrides import preference_override_row
 
 
-output_folder = "damage-robustness-analysis"
+output_folder = "damage-robustness-BY2025-fixedlearn-run0-v1"
 
 
 def parse_int_levels(env_name, default_values):
@@ -52,7 +53,7 @@ def damage_specs():
 
 
 def get_cluster_config(specs):
-    sge_task_id = os.environ.get('SGE_TASK_ID')
+    sge_task_id = os.environ.get('SGE_TASK_ID') or os.environ.get('TASK_ID')
     if sge_task_id is None:
         print("ERROR: SGE_TASK_ID environment variable not found!")
         print("This script is designed to run as part of an SGE array job.")
@@ -96,7 +97,7 @@ def get_cluster_config(specs):
 
 
 def mean_parameter_values():
-    return np.atleast_2d(RUN0_PARAMETER_VALUES)
+    return np.atleast_2d(preference_override_row())
 
 
 def apply_damage_spec(spec):
@@ -156,6 +157,7 @@ def main():
             tree_spec='default',
             comparison_type='same_grid',
             sample_label=f"damage_{spec['label']}",
+            delay_window_years=delay_year,
         )
     except Exception as e:
         print(f"ERROR running damage robustness spec {spec['label']}, delay {delay_year}: {e}")

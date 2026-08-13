@@ -1,4 +1,4 @@
-name: EZClimate
+name: econ
 
 channels:
   - conda-forge

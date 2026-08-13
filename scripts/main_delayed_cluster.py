@@ -21,15 +21,19 @@ from src.climate import BPWClimate
 from src.damage import BPWDamage
 from src.utility import EZUtility
 from src.analysis.climate_output import ClimateOutput
-from src.analysis.delayed_action import get_delay_nodes, ConstraintAnalysis
-from src.config import DEFAULT_DECISION_TIMES
+from src.analysis.delayed_action import (
+    ConstraintAnalysis,
+    SUPPORTED_FIXED_DELAY_YEARS,
+    fixed_delay_decision_times,
+    get_delay_nodes_for_year,
+)
 from src.tools import import_csv
 from src.optimization import GeneticAlgorithm, GradientSearch
 
 runs = [0] # list(range(0, 22))
 
-delay_years = [5, 10, 15]
-output_folder = "common_baseline"
+delay_years = list(SUPPORTED_FIXED_DELAY_YEARS)
+output_folder = "common-baseline-fixedlearn"
 test_mode = False
 import_damages = False
 
@@ -160,9 +164,7 @@ def run_delayed_analysis(run_index, delay_year, name, header, data, out_folder, 
         N_iters_gs = 100
     
     
-    decision_times_delay = DEFAULT_DECISION_TIMES.copy()
-    if delay_year > 0:
-        decision_times_delay[1] = delay_year
+    decision_times_delay = fixed_delay_decision_times()
 
     if baseline_mode in (SAME_GRID_BASELINE, ALIGNED_BASELINE):
         # ALIGNED_BASELINE is accepted as a legacy alias, but the current main
@@ -404,8 +406,11 @@ def run_delayed_analysis(run_index, delay_year, name, header, data, out_folder, 
 
     print("\n\n\n Running delayed action scenario...")
     
-    fixed_indices_delay = [0]
-    fixed_values_delay = np.zeros(len(fixed_indices_delay))
+    fixed_indices_delay = get_delay_nodes_for_year(t_delay, delay_year)
+    fixed_values_delay = (
+        np.zeros(len(fixed_indices_delay)) if len(fixed_indices_delay) else None
+    )
+    fixed_indices_arg = fixed_indices_delay if len(fixed_indices_delay) else None
     
     print(f"Constraint configuration:")
     print(f"  Total decision nodes:        {t_delay.num_decision_nodes}")
@@ -421,7 +426,7 @@ def run_delayed_analysis(run_index, delay_year, name, header, data, out_folder, 
         num_feature=t_delay.num_decision_nodes,
         utility=u_delay, 
         fixed_values=fixed_values_delay,
-        fixed_indices=fixed_indices_delay,
+        fixed_indices=fixed_indices_arg,
         print_progress=True
     )
     
@@ -431,7 +436,7 @@ def run_delayed_analysis(run_index, delay_year, name, header, data, out_folder, 
         accuracy=5.e-7,
         iterations=N_iters_gs,
         fixed_values=fixed_values_delay,
-        fixed_indices=fixed_indices_delay,
+        fixed_indices=fixed_indices_arg,
         print_progress=True
     )
     

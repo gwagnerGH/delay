@@ -305,8 +305,23 @@ class BPWDamage(Damage):
             damages[i] = self._damage_function_node(m, node, is_last=is_last)
         return damages
 
+    def climate_damage_node(self, m, node, is_last=False):
+        """Return the climate-damage component at a node, excluding the cooling penalty."""
+
+        if node == 0:
+            return 0.0
+
+        period = self.tree.get_period(node)
+        if is_last:
+            period += 1
+
+        indiv_mit_emissions_cumemit, _ = self.emit_baseline.get_mitigated_baseline(
+            m=m, node=node, baseline='cumemit', is_last=is_last
+        )
+        return self._get_interp_damage(indiv_mit_emissions_cumemit[-1], node, period)
+
     def _damage_function_node(self, m, node, is_last=False):
-        """Calculate the damage at a node.
+        """Calculate total damage at a node, including the over-mitigation penalty.
 
         Use the recombined tree damage values to calculate the damage
         at any node, for any mitigation vector, using interpolation between the
@@ -341,33 +356,13 @@ class BPWDamage(Damage):
             total damage at the node
         """
 
-        # no damages at first node.
         if node == 0:
             return 0.0
-
-        # find what period we're in 
-        # (i.e., how many decisions have already been made?)
-        period = self.tree.get_period(node)
-
-        if is_last:
-            period += 1
-
-        # get mitigated baseline for current node
-        indiv_mit_emissions_cumemit, _ = self.emit_baseline.get_mitigated_baseline(m=m,
-                                                                        node=node,
-                                                                        baseline='cumemit',
-                                                                        is_last=is_last)
 
         # calc ghg content at node using carbon cycle model
         node_indiv_ghg_level = self.climate.get_conc_at_node(m=m, node=node,
                                                              is_last=is_last)
-
-        # note cumemit at current time
-        node_indiv_cumemit = indiv_mit_emissions_cumemit[-1]
-
-        # get indiviudal damage at current node
-        node_indiv_damage = self._get_interp_damage(node_indiv_cumemit, node,
-                                                    period)
+        node_indiv_damage = self.climate_damage_node(m, node, is_last=is_last)
 
         # penalize individuals for overmitigating. functional form taken from
         # Declining CO2 price paths, Daniel et al. 2017
@@ -400,11 +395,11 @@ class BPWDamage(Damage):
             expected value of damage at current node
         """
 
-        # note current cumulative emissions at the current period for every
-        # mitigation constant value
-        mit_cumemit_per = np.array([((1 - self.mitigation_constants[i]) *
-                           self.emit_baseline.baseline_cumemit_periods)[period]
-                           for i in range(self.dnum)])
+        # Note current cumulative emissions at the current period for every
+        # mitigation constant value. Historical emissions already present at
+        # the base year cannot be mitigated; only post-base-year emissions are
+        # scaled by the simulated constant policy.
+        mit_cumemit_per = self.mitigation_cumulative_emissions_knots(period)
 
         # find end states to get probabilities for weighted sum
         end_states = self.tree.reachable_end_states(node)
@@ -467,6 +462,16 @@ class BPWDamage(Damage):
         # interpolate using the usual linear formula
         damage = slope * (cemit - cemit_less) + d_less
         return damage
+
+    def mitigation_cumulative_emissions_knots(self, period):
+        """Cumulative-emissions coordinates of constant-policy damage runs."""
+
+        base = float(self.emit_baseline.CUMEMIT_BASE_YEAR)
+        baseline_at_period = float(
+            self.emit_baseline.baseline_cumemit_periods[period]
+        )
+        return base + (1.0 - np.asarray(self.mitigation_constants, dtype=float)) \
+            * (baseline_at_period - base)
 
     def average_mitigation(self, m, period, is_last=False):
         """Calculate the average mitigation for all nodes in a period.

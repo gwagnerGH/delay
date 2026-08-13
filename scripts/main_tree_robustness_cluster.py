@@ -17,10 +17,15 @@ from _project_paths import configure_paths
 configure_paths()
 
 import main_ensemble_delayed_cluster as ensemble
+from src.analysis.delayed_action import (
+    SUPPORTED_FIXED_DELAY_YEARS,
+    fixed_delay_decision_times,
+)
 from src.config import GAUSSIAN_PRIOR_SET_NAME, PARAMETER_PRIOR_DIMS, RUN0_PARAMETER_VALUES
+from src.config.parameter_overrides import preference_override_row
 
 
-output_folder = "tree-robustness-analysis"
+output_folder = "tree-robustness-BY2025-fixedlearn-run0-v1"
 
 # Default robustness grid:
 # row-0 parameter vector * 3 delay years * 5 tree specs = 15 tasks.
@@ -34,7 +39,7 @@ DEFAULT_TREE_SPEC_NAMES = [
 
 TREE_SPECS = {
     'default': {
-        'decision_times': ensemble.DEFAULT_DECISION_TIMES.copy(),
+        'decision_times': fixed_delay_decision_times(),
         'prob_scale': 1.0,
     },
     'standard_10yr_second_decision': {
@@ -50,14 +55,22 @@ TREE_SPECS = {
         'prob_scale': 1.0,
     },
     'higher_fragility_weight': {
-        'decision_times': ensemble.DEFAULT_DECISION_TIMES.copy(),
+        'decision_times': fixed_delay_decision_times(),
         'prob_scale': 0.75,
     },
     'lower_fragility_weight': {
-        'decision_times': ensemble.DEFAULT_DECISION_TIMES.copy(),
+        'decision_times': fixed_delay_decision_times(),
         'prob_scale': 1.5,
     },
 }
+
+
+def fixed_learning_tree_times(decision_times):
+    """Keep a spec's later tree while using the common early delay grid."""
+
+    early = list(SUPPORTED_FIXED_DELAY_YEARS)
+    later = [int(year) for year in decision_times if int(year) > 20]
+    return sorted(set(early + later))
 
 
 def selected_tree_spec_names():
@@ -75,7 +88,7 @@ def selected_tree_spec_names():
 
 
 def get_cluster_config():
-    sge_task_id = os.environ.get('SGE_TASK_ID')
+    sge_task_id = os.environ.get('SGE_TASK_ID') or os.environ.get('TASK_ID')
     if sge_task_id is None:
         print("ERROR: SGE_TASK_ID environment variable not found!")
         print("This script is designed to run as part of an SGE array job.")
@@ -122,9 +135,7 @@ def get_cluster_config():
 
 def get_tree_decision_times(tree_spec, delay_year):
     spec = TREE_SPECS[tree_spec]
-    decision_times_delay = list(spec['decision_times'])
-    if delay_year > 0:
-        decision_times_delay[1] = delay_year
+    decision_times_delay = fixed_learning_tree_times(spec['decision_times'])
     decision_times_baseline = decision_times_delay.copy()
     return decision_times_baseline, decision_times_delay
 
@@ -135,7 +146,7 @@ def main():
     sample_index, task_id, delay_year, tree_spec, out_folder, baseline = get_cluster_config()
     ensemble.setup_cluster_directories(out_folder)
 
-    param_vals = np.atleast_2d(RUN0_PARAMETER_VALUES)
+    param_vals = np.atleast_2d(preference_override_row())
 
     if task_id == 1:
         samples_copy = os.path.join(
@@ -172,6 +183,7 @@ def main():
             decision_times_delay=decision_times_delay,
             prob_scale_baseline=prob_scale,
             prob_scale_delay=prob_scale,
+            delay_window_years=delay_year,
         )
     except Exception as e:
         print(f"ERROR running sample {sample_index}, delay {delay_year}, tree {tree_spec}: {e}")

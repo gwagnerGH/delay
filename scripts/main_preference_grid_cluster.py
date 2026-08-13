@@ -27,7 +27,7 @@ from src.config import (
 )
 
 
-output_folder = "preference-grid-analysis"
+output_folder = "preference-grid-BY2025-fixedlearn-run0-v1"
 
 
 def parse_levels(env_name, default_values):
@@ -46,9 +46,18 @@ def default_levels(name):
     ]
 
 
+def default_eis_levels():
+    """Paper robustness grid: exclude the non-finite upper-EIS corner.
+
+    An explicit PREFERENCE_EIS_LEVELS value still permits a separate
+    high-EIS sensitivity run when that case is methodologically required.
+    """
+    return default_levels('EIS')[:2]
+
+
 def preference_grid_values():
     ra_levels = parse_levels('PREFERENCE_RA_LEVELS', default_levels('RA'))
-    eis_levels = parse_levels('PREFERENCE_EIS_LEVELS', default_levels('EIS'))
+    eis_levels = parse_levels('PREFERENCE_EIS_LEVELS', default_eis_levels())
     prtp_levels = parse_levels('PREFERENCE_PRTP_LEVELS', default_levels('PRTP'))
 
     values = []
@@ -71,7 +80,7 @@ def preference_grid_values():
 
 
 def get_cluster_config(param_vals, labels, levels):
-    sge_task_id = os.environ.get('SGE_TASK_ID')
+    sge_task_id = os.environ.get('SGE_TASK_ID') or os.environ.get('TASK_ID')
     if sge_task_id is None:
         print("ERROR: SGE_TASK_ID environment variable not found!")
         print("This script is designed to run as part of an SGE array job.")
@@ -157,6 +166,7 @@ def main():
             run_type='preference_grid',
             tree_spec='default',
             sample_label=f'pref_grid_{grid_index:03d}',
+            delay_window_years=delay_year,
         )
     except Exception as e:
         print(f"ERROR running preference-grid scenario {grid_index}, delay {delay_year}: {e}")

@@ -1,6 +1,6 @@
 #!/bin/bash
 set -euo pipefail
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/_cluster_env.sh"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/scripts/_cluster_env.sh"
 
 # Export KEY=VALUE params passed after the script name (from grid_run)
 for kv in "$@"; do

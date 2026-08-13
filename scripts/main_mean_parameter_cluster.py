@@ -19,7 +19,7 @@ import main_ensemble_delayed_cluster as ensemble
 from src.config import GAUSSIAN_PRIOR_SET_NAME, PARAMETER_PRIOR_DIMS, RUN0_PARAMETER_VALUES
 
 
-output_folder = "mean-parameter-analysis"
+output_folder = "mean-parameter-BY2025-fixedlearn-run0-v1"
 
 
 def get_cluster_config():

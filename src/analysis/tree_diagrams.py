@@ -1,10 +1,11 @@
 
 """Tree diagram class.
 
-Adam Michael Bauer
-University of Illinois at Urbana Champaign
-adammb4@illinois.edu
-5/18/2022
+Theo Moers
+tlm2160@columbia.edu
+Columbia University
+
+based originally on Adam Bauer
 
 This code contains the TreeDiagram class, which conviniently creates tree
 diagrams of the output of CAP6.

@@ -240,7 +240,7 @@ def get_integral_var_ub(integrand, integrand_x_vals, new_xs):
     new_integrand = np.interp(no_dups_full_x, integrand_x_vals, integrand)
     
     # make f values
-    f = np.zeros_like(new_xs, dtype=np.float32)
+    f = np.zeros_like(new_xs, dtype=np.float64)
     i = 0
     
     # eval at new upper bounds

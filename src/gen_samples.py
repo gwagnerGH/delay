@@ -1,9 +1,10 @@
 """Generate samples for CAP6 ensemble model runs.
 
-Adam Michael Bauer
-University of Illinois at Urbana Champaign
-adammb4@illinois.edu
-8.19.2022
+Theo Moers
+tlm2160@columbia.edu
+Columbia University
+
+based originally on Adam Bauer
 
 This code contains functions which make text files that contain sampled model
 parameter values.
@@ -24,8 +25,8 @@ def truncnorm_locs_at_modes(lbs, ubs, means):
         raise ValueError("lbs, ubs, and means must have the same length")
     if np.any(ubs <= lbs):
         raise ValueError("Each upper bound must be greater than its lower bound")
-    if np.any(means <= lbs) or np.any(means >= ubs):
-        raise ValueError("Each Gaussian mode must lie strictly inside its bounds")
+    if np.any(means < lbs) or np.any(means > ubs):
+        raise ValueError("Each Gaussian mode must lie within its bounds")
 
     return means.copy()
 

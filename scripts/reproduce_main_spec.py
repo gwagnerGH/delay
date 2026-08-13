@@ -12,86 +12,129 @@ import subprocess
 
 
 LOCAL_RUNS = (
-    ("single benchmark", ("python", "scripts/main.py")),
-    ("default delayed action", ("python", "scripts/main_delayed.py")),
+    ("single benchmark", ("python", "main.py")),
+    ("default delayed action", ("python", "main_delayed.py")),
 )
 
 CLUSTER_RUNS = (
     {
-        "name": "five-year delay frontier",
-        "array": "1-5",
-        "command": "bash scripts/run_delay_frontier_array_job.sh",
+        "name": "mean parameter vector",
+        "array": "1-4",
+        "command": "/user/tlm2160/EZDelay/run_mean_parameter_array_job.sh",
         "env": {
-            "OUTPUT_FOLDER": "delay-frontier-BY2025-fiveyear-cons2025-run0-v2",
-            "FRONTIER_GRID": "five_year",
+            "OUTPUT_FOLDER": "mean-parameter-BY2025-fixedlearn-run0-v1",
+            "TEST_MODE": "0",
+        },
+    },
+    {
+        "name": "fixed-learning delay frontier",
+        "array": "1-4",
+        "command": "/user/tlm2160/EZDelay/run_delay_frontier_array_job.sh",
+        "env": {
+            "OUTPUT_FOLDER": "delay-frontier-BY2025-fixedlearn-run0-v1",
+            "FRONTIER_GRID": "fixed_learning",
             "FRONTIER_PARAMETER_SOURCE": "mean",
             "TEST_MODE": "0",
         },
     },
     {
-        "name": "five-year delay-frontier robustness",
-        "array": "1-25",
-        "command": "bash scripts/run_delay_frontier_array_job.sh",
+        "name": "fixed-learning delay-frontier robustness",
+        "array": "1-16",
+        "command": "/user/tlm2160/EZDelay/run_delay_frontier_array_job.sh",
         "env": {
-            "OUTPUT_FOLDER": "delay-frontier-BY2025-fiveyear-cons2025-robustness-v2",
-            "FRONTIER_GRID": "five_year",
+            "OUTPUT_FOLDER": "delay-frontier-BY2025-fixedlearn-robustness-v1",
+            "FRONTIER_GRID": "fixed_learning",
             "FRONTIER_PARAMETER_SOURCE": "robustness",
-            "FRONTIER_PARAMETER_SPECS": "low_eis,high_eis,high_ra,low_ra,no_endogenous_learning",
+            "FRONTIER_PARAMETER_SPECS": "low_eis,high_ra,low_ra,no_endogenous_learning",
             "IMPORT_DAMAGES": "1",
             "TEST_MODE": "0",
         },
     },
     {
-        "name": "partial mitigation",
-        "array": "1-63",
-        "command": "bash scripts/run_partial_array_job.sh",
+        "name": "five-year delay frontier",
+        "array": "1-3",
+        "command": "/user/tlm2160/EZDelay/run_delay_frontier_array_job.sh",
         "env": {
-            "OUTPUT_FOLDER": "partial-mitigation-BY2025-cons2025-samegrid-run0-cap-v1",
+            "OUTPUT_FOLDER": "delay-frontier-BY2025-fiveyear-run0-v3",
+            "FRONTIER_GRID": "five_year",
+            "FRONTIER_PARAMETER_SOURCE": "mean",
+            "DELAY_YEARS": "5,10,15",
+            "IMPORT_DAMAGES": "1",
+            "N_GENERATIONS_GA": "400",
+            "N_ITERS_GS": "600",
+            "TEST_MODE": "0",
+        },
+    },
+    {
+        "name": "five-year delay-frontier robustness",
+        "array": "1-12",
+        "command": "/user/tlm2160/EZDelay/run_delay_frontier_array_job.sh",
+        "env": {
+            "OUTPUT_FOLDER": "delay-frontier-BY2025-fiveyear-robustness-v3",
+            "FRONTIER_GRID": "five_year",
+            "FRONTIER_PARAMETER_SOURCE": "robustness",
+            "FRONTIER_PARAMETER_SPECS": "low_eis,high_ra,low_ra,no_endogenous_learning",
+            "DELAY_YEARS": "5,10,15",
+            "IMPORT_DAMAGES": "1",
+            "N_GENERATIONS_GA": "400",
+            "N_ITERS_GS": "600",
+            "TEST_MODE": "0",
+        },
+    },
+    {
+        "name": "partial mitigation",
+        "array": "1-84",
+        "command": "/user/tlm2160/EZDelay/run_partial_array_job.sh",
+        "env": {
+            "OUTPUT_FOLDER": "partial-mitigation-BY2025-fixedlearn-run0-cap-v1",
             "TEST_MODE": "0",
         },
     },
     {
         "name": "tree robustness",
-        "array": "1-15",
-        "command": "bash scripts/run_tree_robustness_array_job.sh",
+        "array": "1-20",
+        "command": "/user/tlm2160/EZDelay/run_tree_robustness_array_job.sh",
         "env": {
-            "OUTPUT_FOLDER": "tree-robustness-BY2025-cons2025-samegrid-run0-v1",
+            "OUTPUT_FOLDER": "tree-robustness-BY2025-fixedlearn-run0-v1",
             "TEST_MODE": "0",
         },
     },
     {
         "name": "preference-grid robustness",
-        "array": "1-81",
-        "command": "bash scripts/run_preference_grid_array_job.sh",
+        "array": "1-108",
+        "command": "/user/tlm2160/EZDelay/run_preference_grid_array_job.sh",
         "env": {
-            "OUTPUT_FOLDER": "preference-grid-BY2025-cons2025-samegrid-run0-v1",
+            "OUTPUT_FOLDER": "preference-grid-BY2025-fixedlearn-run0-v1",
             "TEST_MODE": "0",
         },
     },
     {
         "name": "technology-grid robustness",
-        "array": "1-27",
-        "command": "bash scripts/run_technology_grid_array_job.sh",
+        "array": "1-36",
+        "command": "/user/tlm2160/EZDelay/run_technology_grid_array_job.sh",
         "env": {
-            "OUTPUT_FOLDER": "technology-grid-BY2025-cons2025-samegrid-run0-v1",
+            "OUTPUT_FOLDER": "technology-grid-BY2025-fixedlearn-run0-v1",
             "TEST_MODE": "0",
         },
     },
     {
         "name": "damage-specification robustness",
-        "array": "1-24",
-        "command": "bash scripts/run_damage_robustness_array_job.sh",
+        "array": "1-32",
+        "command": "/user/tlm2160/EZDelay/run_damage_robustness_array_job.sh",
         "env": {
-            "OUTPUT_FOLDER": "damage-robustness-BY2025-cons2025-samegrid-run0-v1",
+            "OUTPUT_FOLDER": "damage-robustness-BY2025-fixedlearn-run0-v1",
             "TEST_MODE": "0",
         },
     },
     {
         "name": "Gaussian ensemble delayed action",
-        "array": "1-9000",
-        "command": "bash scripts/run_ensemble_delayed_array_job.sh",
+        "array": "1-1500",
+        "command": "/user/tlm2160/EZDelay/run_ensemble_delayed_array_job.sh",
         "env": {
-            "OUTPUT_FOLDER": "ensemble-BY2025-cons2025-samegrid-run0gauss-eisfix-v1",
+            "OUTPUT_FOLDER": "ensemble-BY2025-fixedlearn-run0gauss-N500-delay5-15-v3",
+            "IMPORT_DAMAGES": "1",
+            "N_GENERATIONS_GA": "400",
+            "N_ITERS_GS": "600",
             "TEST_MODE": "0",
         },
     },
@@ -148,8 +191,8 @@ def main():
         action="store_true",
         help="Submit the cluster array jobs after printing the plan.",
     )
-    parser.add_argument("--grid-mem", default="150G", help="Memory for grid_run.")
-    parser.add_argument("--grid-ncpus", default="4", help="CPU count for grid_run.")
+    parser.add_argument("--grid-mem", default="200G", help="Memory for grid_run.")
+    parser.add_argument("--grid-ncpus", default="8", help="CPU count for grid_run.")
     args = parser.parse_args()
 
     print_plan(args)

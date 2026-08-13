@@ -26,8 +26,10 @@ from src.config import (
     RUN0_PARAMETER_VALUES,
 )
 
+from src.config.parameter_overrides import preference_override_row
 
-output_folder = "technology-grid-analysis"
+
+output_folder = "technology-grid-BY2025-fixedlearn-run0-v1"
 
 
 def parse_levels(env_name, default_values):
@@ -61,7 +63,7 @@ def technology_grid_values():
     labels = []
     for tech_chg in tech_chg_levels:
         for tech_scale in tech_scale_levels:
-            row = RUN0_PARAMETER_VALUES.copy()
+            row = preference_override_row()
             row[tech_chg_index] = tech_chg
             row[tech_scale_index] = tech_scale
             values.append(row)
@@ -74,7 +76,7 @@ def technology_grid_values():
 
 
 def get_cluster_config(param_vals, labels, levels):
-    sge_task_id = os.environ.get('SGE_TASK_ID')
+    sge_task_id = os.environ.get('SGE_TASK_ID') or os.environ.get('TASK_ID')
     if sge_task_id is None:
         print("ERROR: SGE_TASK_ID environment variable not found!")
         print("This script is designed to run as part of an SGE array job.")
@@ -160,6 +162,7 @@ def main():
             run_type='technology_grid',
             tree_spec='default',
             sample_label=f'tech_grid_{grid_index:03d}',
+            delay_window_years=delay_year,
         )
     except Exception as e:
         print(f"ERROR running technology-grid scenario {grid_index}, delay {delay_year}: {e}")

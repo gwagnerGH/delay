@@ -13,6 +13,7 @@ HISTORICAL_PARAMETER_SOURCE=robustness for deterministic robustness rows.
 
 import csv
 import fcntl
+import hashlib
 import os
 import pprint
 import sys
@@ -41,9 +42,15 @@ from src.config import (
 from src.cost import BPWCost
 from src.damage import BPWDamage
 from src.emit_baseline import BPWEmissionBaseline
-from src.optimization import GeneticAlgorithm, GradientSearch
+from src.optimization import (
+    CandidateScreenedLBFGSB,
+    GeneticAlgorithm,
+    GradientSearch,
+)
+from src.adjoint_objective import EZAdjointObjective
 from src.tree import TreeModel
 from src.utility import EZUtility
+from main_ensemble_delayed_cluster import ga_adjoint_warm_starts, solve_lbfgsb_policy
 
 
 DATA_DIR = os.path.join(str(PROJECT_ROOT), "data", "new_outputs")
@@ -63,7 +70,6 @@ CONS_AT_0 = 4544.81873304222  # billions current USD, World Bank NE.CON.TOTL.CD,
 DEFAULT_OUTPUT_FOLDER = "historical-delay-BY1975-SSP2-cons1975-v1"
 DEFAULT_PARAMETER_SPECS = [
     "low_eis",
-    "high_eis",
     "high_ra",
     "low_ra",
     "no_endogenous_learning",
@@ -71,12 +77,224 @@ DEFAULT_PARAMETER_SPECS = [
 
 test_mode = os.environ.get("TEST_MODE", "0").lower() in ("1", "true", "yes")
 import_damages = os.environ.get("IMPORT_DAMAGES", "0").lower() in ("1", "true", "yes")
+require_damage_import = os.environ.get("REQUIRE_DAMAGE_IMPORT", "0").lower() in ("1", "true", "yes")
+if require_damage_import and not import_damages:
+    raise ValueError("REQUIRE_DAMAGE_IMPORT=1 requires IMPORT_DAMAGES=1")
 
 dam_func = RUN0_FIXED_PARAMETERS["dam_func"]
 tip_on = RUN0_FIXED_PARAMETERS["tip_on"]
 d_unc = RUN0_FIXED_PARAMETERS["d_unc"]
 t_unc = RUN0_FIXED_PARAMETERS["t_unc"]
 no_free_lunch = RUN0_FIXED_PARAMETERS["no_free_lunch"]
+
+
+def env_int(name, default):
+    value = os.environ.get(name)
+    if value is None or value == "":
+        return default
+    parsed = int(value)
+    if parsed <= 0:
+        raise ValueError(f"{name} must be positive, got {value!r}")
+    return parsed
+
+
+def env_float(name, default):
+    value = os.environ.get(name)
+    if value is None or value == "":
+        return default
+    return float(value)
+
+
+def env_bool(name, default=False):
+    value = os.environ.get(name)
+    if value is None or value == "":
+        return bool(default)
+    return value.lower() in ("1", "true", "yes", "y")
+
+
+def default_lbfgsb_workers():
+    for name in ("NSLOTS", "SLURM_CPUS_PER_TASK"):
+        value = os.environ.get(name)
+        if value:
+            parsed = int(value)
+            if parsed > 0:
+                return parsed
+    return 1
+
+
+def optimizer_mode():
+    return os.environ.get("OPTIMIZER", "ga_gs").strip().lower()
+
+
+def require_lbfgsb_success(diagnostics, scenario_name):
+    if diagnostics.get("lbfgsb_success", False):
+        return
+    fields = [
+        "lbfgsb_message",
+        "lbfgsb_best_result_accepted",
+        "lbfgsb_scipy_success",
+        "success_scipy",
+        "success_diagnostics",
+        "gradient_mode",
+        "gradient_validation_status",
+        "gradient_validation_message",
+        "gradient_validation_max_abs_error",
+        "gradient_validation_max_rel_error",
+        "projected_grad_inf_norm",
+        "projected_grad_l2_norm",
+        "worst_kkt_node",
+        "worst_kkt_time",
+        "worst_kkt_state",
+        "final_utility_spread",
+        "final_utility_spread_rel",
+        "effective_utility_spread_tol",
+        "best_final_utility",
+        "second_best_final_utility",
+        "median_final_utility",
+        "n_near_best_final_utility",
+        "best_second_solution_linf",
+        "projected_gradient_max_abs",
+        "projected_gradient_tol",
+        "projected_gradient_pass",
+        "lbfgsb_converged",
+        "stationarity_failed",
+        "mitigation_kink_failed",
+        "perturbation_failed",
+        "max_perturbation_utility_gain",
+        "effective_perturbation_tol",
+        "best_perturbation_kind",
+        "best_perturbation_direction",
+        "best_perturbation_size",
+        "all_at_mitigation_kink",
+        "all_active_at_mitigation_kink",
+        "all_active_free_at_mitigation_kink",
+        "share_active_free_at_mitigation_kink",
+        "selected_start_source_groups",
+        "n_selected_start_source_groups",
+        "welfare_decomposition_available",
+        "consumption_tree_min",
+        "consumption_tree_max",
+        "cost_tree_min",
+        "cost_tree_max",
+        "n_candidates_evaluated",
+        "n_local_starts",
+        "escalation_used",
+        "dispersion_failed",
+    ]
+    details = ", ".join(
+        "{}={}".format(field, diagnostics.get(field))
+        for field in fields
+        if field in diagnostics
+    )
+    raise RuntimeError(
+        "L-BFGS-B {} solve failed diagnostics; aborting because GA fallback is disabled. {}".format(
+            scenario_name, details
+        )
+    )
+
+
+def stable_seed(*parts):
+    raw = "|".join(str(part) for part in parts)
+    digest = hashlib.sha1(raw.encode("utf-8")).hexdigest()
+    return int(digest[:8], 16)
+
+
+def historical_lbfgsb_policy(utility, num_nodes, scenario_name, warm_starts=None,
+                             fixed_indices=None, fixed_values=None,
+                             gradient_mode="finite_difference", seed_parts=()):
+    # Adjoint production runs use the same removal-aware active-set solve and
+    # fail-closed diagnostics as every other paper experiment.
+    if gradient_mode == "adjoint":
+        return solve_lbfgsb_policy(
+            utility,
+            num_nodes,
+            scenario_name,
+            warm_starts=warm_starts,
+            fixed_indices=fixed_indices,
+            fixed_values=fixed_values,
+            seed_parts=seed_parts or (scenario_name,),
+            print_progress=True,
+            gradient_mode=gradient_mode,
+        )
+
+    lower = np.zeros(num_nodes, dtype=float)
+    upper = np.full(num_nodes, 1.5, dtype=float)
+    if fixed_indices is not None:
+        fixed_indices = np.asarray(fixed_indices, dtype=int)
+        fixed_values = np.asarray(fixed_values, dtype=float).flatten()
+        lower[fixed_indices] = fixed_values
+        upper[fixed_indices] = fixed_values
+    seed = stable_seed(os.environ.get("RANDOM_SEED_BASE", "20250706"), scenario_name)
+    objective_with_gradient = None
+    optimizer_name = "lbfgsb_multistart"
+    if gradient_mode == "adjoint":
+        objective_with_gradient = EZAdjointObjective(utility)
+        optimizer_name = "adjoint_lbfgsb"
+    optimizer = CandidateScreenedLBFGSB(
+        utility=utility,
+        lower_bounds=lower,
+        upper_bounds=upper,
+        objective_with_gradient=objective_with_gradient,
+        gradient_mode=gradient_mode,
+        optimizer_name=optimizer_name,
+        warm_starts=warm_starts or [],
+        n_candidates=env_int("N_CANDIDATES", 256),
+        n_local_starts=env_int("N_LOCAL_STARTS", 8),
+        max_candidates=env_int("MAX_CANDIDATES", 1024),
+        max_local_starts=env_int("MAX_LOCAL_STARTS", 16),
+        maxiter=env_int("LBFGSB_MAXITER", 150),
+        ftol=env_float("LBFGSB_FTOL", 1e-7),
+        gtol=env_float("LBFGSB_GTOL", 1e-5),
+        utility_spread_tol=env_float("UTILITY_SPREAD_TOL", 1e-7),
+        utility_spread_rel_tol=env_float("UTILITY_SPREAD_REL_TOL", 1e-3),
+        escalate_on_dispersion=env_bool("ESCALATE_ON_DISPERSION", True),
+        start_design=os.environ.get("START_DESIGN", "sobol"),
+        seed=seed,
+        print_progress=True,
+        scenario_name=scenario_name,
+        candidate_progress_every=env_int("LBFGSB_CANDIDATE_PROGRESS_EVERY", 25),
+        callback_progress_every=env_int("LBFGSB_CALLBACK_PROGRESS_EVERY", 10),
+        n_workers=env_int("LBFGSB_N_WORKERS", default_lbfgsb_workers()),
+        screening_workers=env_int(
+            "LBFGSB_SCREENING_WORKERS",
+            env_int("LBFGSB_N_WORKERS", default_lbfgsb_workers()),
+        ),
+        gradient_workers=env_int(
+            "LBFGSB_GRADIENT_WORKERS",
+            env_int("LBFGSB_N_WORKERS", default_lbfgsb_workers()),
+        ),
+        local_start_workers=env_int("LBFGSB_LOCAL_START_WORKERS", 1),
+        finite_diff_step=env_float("LBFGSB_FINITE_DIFF_STEP", 1e-8),
+        warm_start_perturbations=env_int("LBFGSB_WARM_START_PERTURBATIONS", 16),
+        warm_start_perturbation_scale=env_float(
+            "LBFGSB_WARM_START_PERTURBATION_SCALE", 0.05
+        ),
+        structured_start_count=env_int("LBFGSB_STRUCTURED_STARTS", 64),
+        near_full_mitigation=env_float("LBFGSB_NEAR_FULL_MITIGATION", 0.98),
+        start_boundary_epsilon=env_float("LBFGSB_START_BOUNDARY_EPSILON", 1e-6),
+        preserve_diverse_starts=env_bool("LBFGSB_PRESERVE_DIVERSE_STARTS", True),
+        min_diverse_start_groups=env_int("LBFGSB_MIN_DIVERSE_START_GROUPS", 4),
+        perturbation_check=env_bool("LBFGSB_PERTURBATION_CHECK", True),
+        perturbation_step=env_float("LBFGSB_PERTURBATION_STEP", 0.01),
+        perturbation_tol=env_float("LBFGSB_PERTURBATION_TOL", 1e-7),
+        perturbation_rel_tol=env_float("LBFGSB_PERTURBATION_REL_TOL", 1e-6),
+        perturbation_block_count=env_int("LBFGSB_PERTURBATION_BLOCKS", 8),
+        local_start_max_utility_gap=env_float("LBFGSB_LOCAL_START_MAX_UTILITY_GAP", np.inf),
+        local_start_max_relative_utility_gap=env_float(
+            "LBFGSB_LOCAL_START_MAX_RELATIVE_UTILITY_GAP", 0.25
+        ),
+        min_local_starts_after_filter=env_int("LBFGSB_MIN_LOCAL_STARTS_AFTER_FILTER", 2),
+        gradient_progress_every=env_int("LBFGSB_GRADIENT_PROGRESS_EVERY", 1),
+        kkt_check=env_bool("LBFGSB_KKT_CHECK", True),
+        projected_gradient_tol=env_float("LBFGSB_PROJECTED_GRADIENT_TOL", 1e-5),
+        validate_gradient=env_bool(
+            "ADJOINT_VALIDATE_GRADIENT", gradient_mode == "adjoint"
+        ),
+        gradient_validation_directions=env_int("ADJOINT_VALIDATION_DIRECTIONS", 4),
+        gradient_validation_abs_tol=env_float("ADJOINT_VALIDATION_ABS_TOL", 1e-5),
+        gradient_validation_rel_tol=env_float("ADJOINT_VALIDATION_REL_TOL", 1e-3),
+    )
+    return optimizer.run()
 
 
 def setup_cluster_directories(out_folder):
@@ -140,16 +358,20 @@ def deterministic_parameter_rows():
 
 def get_cluster_config(param_vals, labels, source):
     sge_task_id = os.environ.get("SGE_TASK_ID")
-    if sge_task_id is None:
-        print("ERROR: SGE_TASK_ID environment variable not found!")
-        print("This script is designed to run as part of an SGE array job.")
-        sys.exit(1)
-
-    try:
-        task_id = int(sge_task_id)
-    except ValueError:
-        print(f"ERROR: Invalid SGE_TASK_ID: {sge_task_id}")
-        sys.exit(1)
+    if sge_task_id in (None, "", "undefined"):
+        if len(param_vals) == 1:
+            task_id = 1
+            print("No valid SGE_TASK_ID found; treating single-row batch job as task 1.")
+        else:
+            print("ERROR: SGE_TASK_ID environment variable not found!")
+            print("Use an SGE array job for multiple historical parameter rows.")
+            sys.exit(1)
+    else:
+        try:
+            task_id = int(sge_task_id)
+        except ValueError:
+            print(f"ERROR: Invalid SGE_TASK_ID: {sge_task_id}")
+            sys.exit(1)
 
     task_index = task_id - 1
     if task_index >= len(param_vals):
@@ -187,18 +409,39 @@ def acquire_file_lock(file_obj, timeout=120.0, poll_interval=0.25):
 
 
 def append_results_to_csv(results_dict, csv_path, max_retries=10, retry_delay=1.0):
+    """Append result rows by field name even when diagnostics differ by branch."""
     os.makedirs(os.path.dirname(csv_path), exist_ok=True)
     for attempt in range(max_retries):
         try:
-            with open(csv_path, "a", newline="") as f:
+            with open(csv_path, "a+", newline="") as f:
                 if not acquire_file_lock(f):
                     print(f"ERROR: Timed out waiting for CSV lock: {csv_path}")
                     return False
                 try:
-                    writer = csv.DictWriter(f, fieldnames=results_dict.keys())
                     if os.path.getsize(csv_path) == 0:
+                        writer = csv.DictWriter(f, fieldnames=results_dict.keys())
                         writer.writeheader()
-                    writer.writerow(results_dict)
+                    else:
+                        f.seek(0)
+                        reader = csv.DictReader(f)
+                        fieldnames = list(reader.fieldnames or [])
+                        missing_fields = [
+                            key for key in results_dict if key not in fieldnames
+                        ]
+                        if missing_fields:
+                            existing_rows = list(reader)
+                            fieldnames.extend(missing_fields)
+                            f.seek(0)
+                            f.truncate()
+                            writer = csv.DictWriter(f, fieldnames=fieldnames)
+                            writer.writeheader()
+                            writer.writerows(existing_rows)
+                        else:
+                            f.seek(0, os.SEEK_END)
+                            writer = csv.DictWriter(f, fieldnames=fieldnames)
+                    writer.writerow({
+                        key: results_dict.get(key, "") for key in writer.fieldnames
+                    })
                     f.flush()
                 finally:
                     fcntl.flock(f.fileno(), fcntl.LOCK_UN)
@@ -212,26 +455,50 @@ def append_results_to_csv(results_dict, csv_path, max_retries=10, retry_delay=1.
                 return False
     return False
 
-
 def append_rows_to_csv(rows, csv_path):
+    """Append output rows by field name even when optional columns vary."""
     if not rows:
         return True
     os.makedirs(os.path.dirname(csv_path), exist_ok=True)
-    fieldnames = list(rows[0].keys())
-    with open(csv_path, "a", newline="") as f:
+    incoming_fieldnames = []
+    for row in rows:
+        incoming_fieldnames.extend(
+            key for key in row if key not in incoming_fieldnames
+        )
+    with open(csv_path, "a+", newline="") as f:
         if not acquire_file_lock(f):
             print(f"ERROR: Timed out waiting for CSV lock: {csv_path}")
             return False
         try:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
             if os.path.getsize(csv_path) == 0:
+                writer = csv.DictWriter(f, fieldnames=incoming_fieldnames)
                 writer.writeheader()
-            writer.writerows(rows)
+            else:
+                f.seek(0)
+                reader = csv.DictReader(f)
+                fieldnames = list(reader.fieldnames or [])
+                missing_fields = [
+                    key for key in incoming_fieldnames if key not in fieldnames
+                ]
+                if missing_fields:
+                    existing_rows = list(reader)
+                    fieldnames.extend(missing_fields)
+                    f.seek(0)
+                    f.truncate()
+                    writer = csv.DictWriter(f, fieldnames=fieldnames)
+                    writer.writeheader()
+                    writer.writerows(existing_rows)
+                else:
+                    f.seek(0, os.SEEK_END)
+                    writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writerows([
+                {key: row.get(key, "") for key in writer.fieldnames}
+                for row in rows
+            ])
             f.flush()
         finally:
             fcntl.flock(f.fileno(), fcntl.LOCK_UN)
     return True
-
 
 def map_to_calendar_years(tree, period_values, target_years):
     tree_years = [int(tree.base_year + dt) for dt in tree.decision_times]
@@ -332,8 +599,15 @@ def run_historical_delay(sample_index, task_id, param_vals, labels, source, out_
         n_generations_ga = 2
         n_iters_gs = 2
     else:
-        n_generations_ga = 200
-        n_iters_gs = 150
+        n_generations_ga = env_int("N_GENERATIONS_GA", 200)
+        n_iters_gs = env_int("N_ITERS_GS", 150)
+    n_topk_gs = env_int("N_TOPK_GS", 8)
+    print(
+        "Optimization settings: "
+        f"GA generations={n_generations_ga}, "
+        f"gradient iterations={n_iters_gs}, "
+        f"gradient topk={n_topk_gs}"
+    )
 
     model_params = {
         "ra": ra,
@@ -444,6 +718,10 @@ def run_historical_delay(sample_index, task_id, param_vals, labels, source, out_
             damage_optimal.import_damages(file_name=damsim_filename)
             damage_delayed.import_damages(file_name=damsim_filename)
         except Exception as exc:
+            if require_damage_import:
+                raise RuntimeError(
+                    f"Required historical damage import failed for {damsim_filename!r}"
+                ) from exc
             print(f"Warning: could not import damages ({exc}); running simulation.")
             damage_optimal.damage_simulation(
                 filename=damsim_filename, save_simulation=True,
@@ -479,59 +757,121 @@ def run_historical_delay(sample_index, task_id, param_vals, labels, source, out_
     )
 
     print("\nRunning unconstrained 1975 optimum...")
-    ga_opt = GeneticAlgorithm(
-        pop_amount=400,
-        num_generations=n_generations_ga,
-        cx_prob=0.8,
-        mut_prob=0.50,
-        bound=1.5,
-        num_feature=t_optimal.num_decision_nodes,
-        utility=utility_optimal,
-        fixed_values=None,
-        fixed_indices=None,
-        print_progress=True,
-    )
-    gs_opt = GradientSearch(
-        var_nums=t_optimal.num_decision_nodes,
-        utility=utility_optimal,
-        accuracy=5.e-7,
-        iterations=n_iters_gs,
-        fixed_values=None,
-        fixed_indices=None,
-        print_progress=True,
-    )
-    final_pop_opt, fitness_opt = ga_opt.run()
-    sort_pop_opt = final_pop_opt[np.argsort(fitness_opt)][::-1]
-    m_optimal, u_optimal = gs_opt.run(initial_point_list=sort_pop_opt, topk=1)
+    print("Shared optimal cache is disabled permanently; computing comparator locally.")
+    historical_solver_diagnostics = {"optimizer": optimizer_mode()}
+    if optimizer_mode() in ("lbfgsb_multistart", "adjoint_lbfgsb", "ga_adjoint_lbfgsb"):
+        gradient_mode = (
+            "adjoint" if optimizer_mode() in ("adjoint_lbfgsb", "ga_adjoint_lbfgsb")
+            else "finite_difference"
+        )
+        optimal_warm_starts = []
+        if optimizer_mode() == "ga_adjoint_lbfgsb":
+            optimal_warm_starts, ga_diag_opt = ga_adjoint_warm_starts(
+                utility_optimal, t_optimal.num_decision_nodes, "historical_optimal",
+                (sample_label,),
+            )
+            historical_solver_diagnostics.update({f"optimal_{k}": v for k, v in ga_diag_opt.items()})
+        m_optimal, u_optimal, diag_opt = historical_lbfgsb_policy(
+            utility_optimal,
+            t_optimal.num_decision_nodes,
+            "historical_optimal",
+            warm_starts=optimal_warm_starts,
+            gradient_mode=gradient_mode,
+        )
+        historical_solver_diagnostics.update({f"optimal_{k}": v for k, v in diag_opt.items()})
+        if not diag_opt.get("lbfgsb_success", False):
+            require_lbfgsb_success(diag_opt, "historical optimal")
+    else:
+        ga_opt = GeneticAlgorithm(
+            pop_amount=400,
+            num_generations=n_generations_ga,
+            cx_prob=0.8,
+            mut_prob=0.50,
+            bound=1.5,
+            num_feature=t_optimal.num_decision_nodes,
+            utility=utility_optimal,
+            fixed_values=None,
+            fixed_indices=None,
+            print_progress=True,
+        )
+        gs_opt = GradientSearch(
+            var_nums=t_optimal.num_decision_nodes,
+            utility=utility_optimal,
+            accuracy=5.e-7,
+            iterations=n_iters_gs,
+            fixed_values=None,
+            fixed_indices=None,
+            print_progress=True,
+        )
+        final_pop_opt, fitness_opt = ga_opt.run()
+        sort_pop_opt = final_pop_opt[np.argsort(fitness_opt)][::-1]
+        m_optimal, u_optimal = gs_opt.run(
+            initial_point_list=sort_pop_opt,
+            topk=min(n_topk_gs, len(sort_pop_opt)),
+        )
 
     fixed_indices = get_delay_nodes(t_delayed, DELAY_PERIODS)
     fixed_values = np.zeros(len(fixed_indices))
     print("\nRunning observed-history delayed path...")
     print(f"  Constrained node indices: {fixed_indices}")
-    ga_delay = GeneticAlgorithm(
-        pop_amount=400,
-        num_generations=n_generations_ga,
-        cx_prob=0.8,
-        mut_prob=0.50,
-        bound=1.5,
-        num_feature=t_delayed.num_decision_nodes,
-        utility=utility_delayed,
-        fixed_values=fixed_values,
-        fixed_indices=fixed_indices,
-        print_progress=True,
-    )
-    gs_delay = GradientSearch(
-        var_nums=t_delayed.num_decision_nodes,
-        utility=utility_delayed,
-        accuracy=5.e-7,
-        iterations=n_iters_gs,
-        fixed_values=fixed_values,
-        fixed_indices=fixed_indices,
-        print_progress=True,
-    )
-    final_pop_delay, fitness_delay = ga_delay.run()
-    sort_pop_delay = final_pop_delay[np.argsort(fitness_delay)][::-1]
-    m_delayed, u_delayed = gs_delay.run(initial_point_list=sort_pop_delay, topk=1)
+    if optimizer_mode() in ("lbfgsb_multistart", "adjoint_lbfgsb", "ga_adjoint_lbfgsb"):
+        gradient_mode = (
+            "adjoint" if optimizer_mode() in ("adjoint_lbfgsb", "ga_adjoint_lbfgsb")
+            else "finite_difference"
+        )
+        warm_start_delay = np.asarray(m_optimal, dtype=float).copy()
+        warm_start_delay[fixed_indices] = fixed_values
+        delayed_warm_starts = [warm_start_delay]
+        if optimizer_mode() == "ga_adjoint_lbfgsb":
+            ga_starts, ga_diag_delay = ga_adjoint_warm_starts(
+                utility_delayed, t_delayed.num_decision_nodes, "historical_delayed",
+                (sample_label,), fixed_indices=fixed_indices, fixed_values=fixed_values,
+            )
+            delayed_warm_starts.extend(ga_starts)
+            historical_solver_diagnostics.update({f"delayed_{k}": v for k, v in ga_diag_delay.items()})
+        m_delayed, u_delayed, diag_delay = historical_lbfgsb_policy(
+            utility_delayed,
+            t_delayed.num_decision_nodes,
+            "historical_delayed",
+            warm_starts=delayed_warm_starts,
+            fixed_indices=fixed_indices,
+            fixed_values=fixed_values,
+            gradient_mode=gradient_mode,
+        )
+        historical_solver_diagnostics.update({f"delayed_{k}": v for k, v in diag_delay.items()})
+        if not diag_delay.get("lbfgsb_success", False):
+            require_lbfgsb_success(diag_delay, "historical delayed")
+    else:
+        ga_delay = GeneticAlgorithm(
+            pop_amount=400,
+            num_generations=n_generations_ga,
+            cx_prob=0.8,
+            mut_prob=0.50,
+            bound=1.5,
+            num_feature=t_delayed.num_decision_nodes,
+            utility=utility_delayed,
+            fixed_values=fixed_values,
+            fixed_indices=fixed_indices,
+            print_progress=True,
+        )
+        gs_delay = GradientSearch(
+            var_nums=t_delayed.num_decision_nodes,
+            utility=utility_delayed,
+            accuracy=5.e-7,
+            iterations=n_iters_gs,
+            fixed_values=fixed_values,
+            fixed_indices=fixed_indices,
+            print_progress=True,
+        )
+        final_pop_delay, fitness_delay = ga_delay.run()
+        sort_pop_delay = final_pop_delay[np.argsort(fitness_delay)][::-1]
+        warm_start_delay = np.asarray(m_optimal, dtype=float).copy()
+        warm_start_delay[fixed_indices] = fixed_values
+        gs_initial_delay = np.vstack([warm_start_delay, sort_pop_delay])
+        m_delayed, u_delayed = gs_delay.run(
+            initial_point_list=gs_initial_delay,
+            topk=min(n_topk_gs, len(gs_initial_delay)),
+        )
 
     for idx in fixed_indices:
         assert abs(m_delayed[idx]) < 1e-10, (
@@ -614,6 +954,7 @@ def run_historical_delay(sample_index, task_id, param_vals, labels, source, out_
         "carbon_price_optimal": float(cost_optimal.price(0, m_optimal[0], 0)),
     }
     results.update(metadata)
+    results.update(historical_solver_diagnostics)
 
     analysis_dir = os.path.join(DATA_DIR, out_folder, "analysis")
     append_results_to_csv(

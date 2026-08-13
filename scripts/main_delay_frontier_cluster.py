@@ -2,10 +2,10 @@
 """
 Delay-frontier cluster runner.
 
-The default annual-grid mode runs integer-year delays 0, 1, ..., 20. Set
-FRONTIER_GRID=five_year to run the native 5-year model grid with delays
-0, 5, 10, 15, 20. The 5-year mode is directly comparable to the partial
-mitigation and main robustness runs.
+The fixed/five-year frontier uses the shared early learning grid
+0, 5, 10, 15, 35, ..., 225. The five-year frontier runs delays
+5, 10, and 15 only; year 20 is intentionally omitted to avoid adding
+another branching decision time.
 
 By default this runs the research_runs.csv row-0 parameter vector so the frontier
 is a compact main-specification mechanism run. Set FRONTIER_PARAMETER_SOURCE to
@@ -21,6 +21,14 @@ from _project_paths import configure_paths
 configure_paths()
 
 import main_ensemble_delayed_cluster as ensemble
+from src.analysis.delayed_action import (
+    FIXED_DELAY_DAMAGE_FILE_TAG,
+    FIXED_DELAY_EMISSIONS_TIME_STEP,
+    FIXED_DELAY_PERIOD_LEN,
+    SUPPORTED_FIXED_DELAY_YEARS,
+    fixed_delay_decision_times,
+    get_delay_periods_for_year,
+)
 from src.config import (
     DEFAULT_BASE_YEAR,
     DEFAULT_CALENDAR_YEARS,
@@ -35,31 +43,36 @@ from src.config import (
 )
 
 
-output_folder = "delay-frontier-analysis"
+output_folder = "delay-frontier-BY2025-fixedlearn-run0-v1"
 
-FRONTIER_GRID = os.environ.get('FRONTIER_GRID', 'annual').strip().lower()
+FRONTIER_GRID = os.environ.get('FRONTIER_GRID', 'fixed_learning').strip().lower()
 if FRONTIER_GRID in ('5', '5yr', '5-year', 'five-year', 'five_year', 'native'):
     FRONTIER_GRID = 'five_year'
 elif FRONTIER_GRID in ('1', '1yr', '1-year', 'annual', 'yearly'):
-    FRONTIER_GRID = 'annual'
+    raise ValueError(
+        "FRONTIER_GRID=annual is disabled for delay-frontier runs. "
+        "Use FRONTIER_GRID=five_year with DELAY_YEARS=5,10,15."
+    )
+elif FRONTIER_GRID in ('fixed', 'fixedlearn', 'fixed_learning', 'fixed-learning'):
+    FRONTIER_GRID = 'fixed_learning'
 else:
     raise ValueError(
-        "FRONTIER_GRID must be 'annual' or 'five_year' "
+        "FRONTIER_GRID must be 'fixed_learning' or 'five_year' "
         f"(got {FRONTIER_GRID!r})."
     )
 
 FRONTIER_GRID_CONFIG = {
-    'annual': {
-        'period_len': 1.0,
-        'emissions_time_step': 1,
-        'damage_file_tag': '_GRID1',
-        'default_delays': list(range(0, 21)),
+    'fixed_learning': {
+        'period_len': FIXED_DELAY_PERIOD_LEN,
+        'emissions_time_step': FIXED_DELAY_EMISSIONS_TIME_STEP,
+        'damage_file_tag': FIXED_DELAY_DAMAGE_FILE_TAG,
+        'default_delays': list(SUPPORTED_FIXED_DELAY_YEARS),
     },
     'five_year': {
-        'period_len': 5.0,
-        'emissions_time_step': None,
-        'damage_file_tag': '_GRID5',
-        'default_delays': list(range(0, 21, 5)),
+        'period_len': FIXED_DELAY_PERIOD_LEN,
+        'emissions_time_step': FIXED_DELAY_EMISSIONS_TIME_STEP,
+        'damage_file_tag': FIXED_DELAY_DAMAGE_FILE_TAG,
+        'default_delays': [5, 10, 15],
     },
 }
 FRONTIER_PERIOD_LEN = FRONTIER_GRID_CONFIG[FRONTIER_GRID]['period_len']
@@ -72,12 +85,29 @@ FRONTIER_PARAMETER_SOURCE = os.environ.get(
 FRONTIER_N_SAMPLES = int(os.environ.get('FRONTIER_N_SAMPLES', '1'))
 FRONTIER_SAMPLE_OFFSET = int(os.environ.get('FRONTIER_SAMPLE_OFFSET', '0'))
 DEFAULT_FRONTIER_PARAMETER_SPECS = [
-    'low_eis',
-    'high_eis',
-    'high_ra',
-    'low_ra',
-    'no_endogenous_learning',
+    "low_eis",
+    "high_ra",
+    "low_ra",
+    "no_endogenous_learning",
 ]
+
+
+def preference_override_row():
+    """Return run 0, optionally with a complete preference override."""
+    names = ("FRONTIER_RA", "FRONTIER_EIS", "FRONTIER_PRTP")
+    supplied = [name for name in names if os.environ.get(name, "") != ""]
+    if supplied and len(supplied) != len(names):
+        missing = [name for name in names if name not in supplied]
+        raise ValueError(
+            "Specify all of FRONTIER_RA, FRONTIER_EIS, and FRONTIER_PRTP "
+            "together; missing {}".format(", ".join(missing))
+        )
+    row = RUN0_PARAMETER_VALUES.copy()
+    if supplied:
+        row[PARAMETER_PRIOR_INDEX["RA"]] = float(os.environ["FRONTIER_RA"])
+        row[PARAMETER_PRIOR_INDEX["EIS"]] = float(os.environ["FRONTIER_EIS"])
+        row[PARAMETER_PRIOR_INDEX["PRTP"]] = float(os.environ["FRONTIER_PRTP"])
+    return row, bool(supplied)
 
 
 def frontier_delay_years():
@@ -108,12 +138,28 @@ def frontier_delay_years():
             f"Invalid delay years: {invalid_order}"
         )
 
-    if FRONTIER_GRID == 'five_year':
-        off_grid = [delay for delay in delays if delay % 5 != 0]
-        if off_grid:
+    if FRONTIER_GRID == 'fixed_learning':
+        invalid_fixed = [
+            delay for delay in delays
+            if delay not in SUPPORTED_FIXED_DELAY_YEARS
+        ]
+        if invalid_fixed:
             raise ValueError(
-                "FRONTIER_GRID=five_year only supports 5-year-grid delays. "
-                f"Invalid delay years: {off_grid}"
+                "FRONTIER_GRID=fixed_learning supports delay years "
+                f"{SUPPORTED_FIXED_DELAY_YEARS}. Invalid delay years: "
+                f"{invalid_fixed}"
+            )
+
+    if FRONTIER_GRID == 'five_year':
+        invalid_five_year = [
+            delay for delay in delays
+            if delay not in DEFAULT_FRONTIER_DELAYS
+        ]
+        if invalid_five_year:
+            raise ValueError(
+                "FRONTIER_GRID=five_year only supports delay years "
+                f"{DEFAULT_FRONTIER_DELAYS}. Invalid delay years: "
+                f"{invalid_five_year}"
             )
 
     return delays
@@ -132,7 +178,7 @@ def parameter_spec_values():
     labels = []
 
     for spec in specs:
-        row = RUN0_PARAMETER_VALUES.copy()
+        row, _ = preference_override_row()
         if spec == 'low_eis':
             row[PARAMETER_PRIOR_INDEX['EIS']] = PARAMETER_PRIOR_LOWER_BOUNDS[PARAMETER_PRIOR_INDEX['EIS']]
             label = spec
@@ -159,6 +205,29 @@ def parameter_spec_values():
     return np.asarray(values, dtype=float), labels
 
 
+def preference_override_values():
+    """Return run 0 with an explicit RA--EIS--PRTP comparison override.
+
+    This intentionally changes only preference parameters; all technology,
+    damage, emissions-baseline, and cost parameters remain at their run-0
+    values. Requiring all three values prevents an accidental partial
+    comparison.
+    """
+
+    row, supplied = preference_override_row()
+    if not supplied:
+        raise ValueError(
+            "FRONTIER_PARAMETER_SOURCE=preference_override requires "
+            "FRONTIER_RA, FRONTIER_EIS, FRONTIER_PRTP"
+        )
+    label = "prefs_ra{:g}_eis{:g}_prtp{:g}".format(
+        row[PARAMETER_PRIOR_INDEX["RA"]],
+        row[PARAMETER_PRIOR_INDEX["EIS"]],
+        row[PARAMETER_PRIOR_INDEX["PRTP"]],
+    ).replace("-", "m").replace(".", "p")
+    return np.atleast_2d(row), [label]
+
+
 def parameter_values_and_labels():
     if FRONTIER_PARAMETER_SOURCE == 'mean':
         return np.atleast_2d(RUN0_PARAMETER_VALUES), ['run0_params']
@@ -168,22 +237,28 @@ def parameter_values_and_labels():
         return param_vals, labels
     if FRONTIER_PARAMETER_SOURCE in ('robustness', 'spec', 'specs'):
         return parameter_spec_values()
+    if FRONTIER_PARAMETER_SOURCE in ('preference_override', 'prefs_override'):
+        return preference_override_values()
     raise ValueError(
-        "FRONTIER_PARAMETER_SOURCE must be 'mean', 'ensemble', or 'robustness', "
+        "FRONTIER_PARAMETER_SOURCE must be 'mean', 'ensemble', 'robustness', "
+        "or 'preference_override', "
         f"not {FRONTIER_PARAMETER_SOURCE!r}"
     )
 
 
 def total_sample_count(param_vals):
-    if FRONTIER_PARAMETER_SOURCE in ('mean', 'robustness', 'spec', 'specs'):
+    if FRONTIER_PARAMETER_SOURCE in (
+        'mean', 'robustness', 'spec', 'specs',
+        'preference_override', 'prefs_override',
+    ):
         return len(param_vals)
     return min(FRONTIER_N_SAMPLES, len(param_vals) - FRONTIER_SAMPLE_OFFSET)
 
 
 def get_cluster_config(param_vals, labels):
-    sge_task_id = os.environ.get('SGE_TASK_ID')
+    sge_task_id = os.environ.get('SGE_TASK_ID') or os.environ.get('TASK_ID')
     if sge_task_id is None:
-        print("ERROR: SGE_TASK_ID environment variable not found!")
+        print("ERROR: SGE_TASK_ID or TASK_ID environment variable not found!")
         print("This script is designed to run as part of an SGE array job.")
         sys.exit(1)
 
@@ -235,13 +310,10 @@ def get_cluster_config(param_vals, labels):
 
 
 def frontier_decision_times(delay_year):
-    decision_times_delay = DEFAULT_DECISION_TIMES.copy()
-    delay_periods = 0
-
-    if delay_year > 0:
-        decision_times_delay[1] = delay_year
-        delay_periods = 1
-
+    decision_times_delay = fixed_delay_decision_times()
+    delay_periods = get_delay_periods_for_year(
+        decision_times_delay, delay_year
+    )
     decision_times_baseline = decision_times_delay.copy()
     return decision_times_baseline, decision_times_delay, delay_periods
 
@@ -313,6 +385,7 @@ def main():
             period_len=FRONTIER_PERIOD_LEN,
             emissions_time_step=FRONTIER_EMISSIONS_TIME_STEP,
             damage_file_tag=FRONTIER_DAMAGE_FILE_TAG,
+            delay_window_years=delay_year,
         )
     except Exception as e:
         print(f"ERROR running delay-frontier task {task_id}: {e}")

@@ -1,6 +1,6 @@
 #!/bin/bash
 set -euo pipefail
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/_cluster_env.sh"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/scripts/_cluster_env.sh"
 
 # Export KEY=VALUE params passed after the script name (from grid_run)
 for kv in "$@"; do
@@ -24,4 +24,4 @@ export OMP_MAX_ACTIVE_LEVELS=1
 export OMP_NESTED=FALSE
 export MKL_DYNAMIC=FALSE
 
-python -u scripts/main_mean_parameter_cluster.py
+python -u main_mean_parameter_cluster.py

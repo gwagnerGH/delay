@@ -1,9 +1,10 @@
 """Climate class for CAP6.
 
-Adam M. Bauer
-University of Illinois at Urbana Champaign
-adammb4@illinois.edu
-3.21.2022
+Theo Moers
+tlm2160@columbia.edu
+Columbia University
+
+based originally on Adam Bauer
 
 This code contains the climate class for CAP6. It utilizes an impulse
 response function to calculate the concentrations at a given time for a given

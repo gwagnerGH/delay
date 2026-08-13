@@ -11,6 +11,7 @@ our utility calculations below.
 """
 
 import numpy as np
+from scipy.optimize import brentq
 
 from src.storage_tree import BigStorageTree, SmallStorageTree
 
@@ -156,7 +157,8 @@ class EZUtility(object):
         # returns first value
         return utility_tree[0]
 
-    def _end_period_utility(self, m, utility_tree, cons_tree, cost_tree):
+    def _end_period_utility(self, m, utility_tree, cons_tree, cost_tree,
+                            period_consmult=None):
         """Calculate the terminal utility.
 
         Calculates the utility in the final period and stores the values in the
@@ -194,6 +196,15 @@ class EZUtility(object):
         cost_tree.set_value(cost_tree.last_period, period_cost)
         period_consumption = self.potential_cons[-1] * (1.0 - period_damage)
         period_consumption[period_consumption<=0.0] = 1e-18
+        if period_consmult is not None:
+            terminal_index = int(round(
+                float(self.tree.decision_times[-1]) / float(self.period_len)
+            ))
+            if terminal_index < len(period_consmult):
+                multiplier = float(period_consmult[terminal_index])
+                if not np.isfinite(multiplier) or multiplier <= 0.0:
+                    raise ValueError("period_consmult values must be finite and positive")
+                period_consumption *= multiplier
         cons_tree.set_value(cons_tree.last_period, period_consumption)
         utility_tree.set_value(
             utility_tree.last_period,
@@ -201,7 +212,8 @@ class EZUtility(object):
         )
 
     def _utility_generator(self, m, utility_tree, cons_tree, cost_tree,
-                           ce_tree, cons_adj=0.0, period_consadj=None):
+                           ce_tree, cons_adj=0.0, period_consadj=None,
+                           period_consmult=None):
         """Generator fora calculating utility for each utility period besides
         the terminal utility.
 
@@ -221,6 +233,9 @@ class EZUtility(object):
             constant adjustment for first period utility
         period_consadj: ndarray, optional
             exact consumption-flow adjustment by utility subperiod index.
+        period_consmult: ndarray, optional
+            exact multiplicative consumption adjustment by utility subperiod
+            index. Values must be finite and strictly positive.
         """
 
         periods = utility_tree.periods[::-1]
@@ -268,6 +283,13 @@ class EZUtility(object):
                 period_index = int(round(float(period) / float(self.period_len)))
                 if 0 <= period_index < len(period_consadj):
                     period_consumption += period_consadj[period_index]
+            if period_consmult is not None:
+                period_index = int(round(float(period) / float(self.period_len)))
+                if 0 <= period_index < len(period_consmult):
+                    multiplier = float(period_consmult[period_index])
+                    if not np.isfinite(multiplier) or multiplier <= 0.0:
+                        raise ValueError("period_consmult values must be finite and positive")
+                    period_consumption *= multiplier
 
             ce_term = self.b * cert_equiv**self.r
             ce_tree.set_value(period, ce_term)
@@ -312,7 +334,8 @@ class EZUtility(object):
 
     def adjusted_utility(self, m, period_cons_eps=None, node_cons_eps=None,
                          final_cons_eps=0.0, first_period_consadj=0.0,
-                         period_consadj=None, return_trees=False):
+                         period_consadj=None, period_consmult=None,
+                         return_trees=False):
         """Calculating aadjusted utility for sensitivity analysis.
 
         Used e.g. to find zero-coupon bond price.
@@ -334,6 +357,9 @@ class EZUtility(object):
             exact consumption-flow adjustment by utility subperiod index. This
             differs from period_cons_eps, which is a marginal utility
             perturbation.
+        period_consmult : ndarray, optional
+            exact multiplicative consumption adjustment by utility subperiod
+            index. A value of 1 leaves consumption unchanged.
         return_trees : bool, optional
             True if method should return trees calculated in producing the
             utility
@@ -382,11 +408,15 @@ class EZUtility(object):
         if node_cons_eps is None:
             node_cons_eps = BigStorageTree(subinterval_len=self.period_len,
                                            decision_times=self.tree.decision_times)
-        self._end_period_utility(m, utility_tree, cons_tree, cost_tree)
+        self._end_period_utility(
+            m, utility_tree, cons_tree, cost_tree,
+            period_consmult=period_consmult,
+        )
 
         it = self._utility_generator(m, utility_tree, cons_tree, cost_tree,
                                      ce_tree, first_period_consadj,
-                                     period_consadj=period_consadj)
+                                     period_consadj=period_consadj,
+                                     period_consmult=period_consmult)
         i = len(utility_tree)-2
         for u, period in it:
             if period == periods[1]:
@@ -415,6 +445,159 @@ class EZUtility(object):
             return utility_tree, cons_tree, cost_tree, ce_tree
 
         return utility_tree.tree[0]
+
+    def zero_coupon_bond_price(self, m, maturity_years=None, payoff=1.0,
+                               epsilon=1e-5):
+        """Price a real zero-coupon bond from the model's pricing kernel.
+
+        The bond pays ``payoff`` units of consumption in *every* state at
+        ``maturity_years``.  Its date-zero price is the ratio of the marginal
+        utility of that payoff to the marginal utility of date-zero
+        consumption.  Thus, unlike a deterministic ``PRTP + growth / EIS``
+        approximation, the result includes the Epstein--Zin certainty
+        equivalents and all uncertainty in the continuation tree.
+
+        Parameters
+        ----------
+        m : ndarray
+            Mitigation policy at which to value the bond.
+        maturity_years : float, optional
+            Bond maturity measured from date zero. Defaults to one utility
+            subperiod (normally five years).
+        payoff : float, optional
+            State-contingent consumption payoff at maturity. It must be
+            positive; the returned price scales linearly for marginal payoffs.
+        epsilon : float, optional
+            Central-difference step used to obtain marginal utilities.
+
+        Returns
+        -------
+        float
+            Date-zero consumption price of the bond.
+        """
+        if maturity_years is None:
+            maturity_years = self.period_len
+        maturity_years = float(maturity_years)
+        payoff = float(payoff)
+        epsilon = float(epsilon)
+        if maturity_years <= 0.0:
+            raise ValueError("maturity_years must be positive")
+        if payoff <= 0.0:
+            raise ValueError("payoff must be positive")
+        if epsilon <= 0.0:
+            raise ValueError("epsilon must be positive")
+
+        period_index = int(round(maturity_years / self.period_len))
+        if not np.isclose(period_index * self.period_len, maturity_years):
+            raise ValueError("maturity_years must be a multiple of period_len")
+        max_index = int(round(self.tree.decision_times[-1] / self.period_len))
+        if period_index > max_index:
+            raise ValueError("maturity_years is beyond the model horizon")
+
+        # ``period_consadj`` is an exact (not linearized) adjustment to
+        # consumption at the requested utility date in every reachable state.
+        adjustments = np.zeros(max_index + 1)
+        adjustments[period_index] = epsilon * payoff
+        target_up = self.adjusted_utility(m, period_consadj=adjustments)
+        adjustments[period_index] = -epsilon * payoff
+        target_down = self.adjusted_utility(m, period_consadj=adjustments)
+        marginal_payoff_utility = float(
+            np.asarray(target_up - target_down).reshape(-1)[0]
+        ) / (2.0 * epsilon)
+
+        initial_up = self.adjusted_utility(
+            m, first_period_consadj=epsilon
+        )
+        initial_down = self.adjusted_utility(
+            m, first_period_consadj=-epsilon
+        )
+        marginal_initial_utility = float(
+            np.asarray(initial_up - initial_down).reshape(-1)[0]
+        ) / (2.0 * epsilon)
+        if not np.isfinite(marginal_payoff_utility) or not np.isfinite(marginal_initial_utility):
+            raise ValueError("non-finite marginal utility while pricing bond")
+        if marginal_initial_utility <= 0.0:
+            raise ValueError("date-zero marginal utility must be positive")
+        return marginal_payoff_utility / marginal_initial_utility
+
+    def risk_free_rate(self, m, maturity_years=None, payoff=1.0,
+                       epsilon=1e-5):
+        """Return the annualized effective real risk-free rate.
+
+        This reports ``bond_price**(-1 / maturity_years) - 1``, where
+        ``bond_price`` is calculated by :meth:`zero_coupon_bond_price` from
+        the full Epstein--Zin utility tree.
+        """
+        if maturity_years is None:
+            maturity_years = self.period_len
+        maturity_years = float(maturity_years)
+        price = self.zero_coupon_bond_price(
+            m, maturity_years=maturity_years, payoff=payoff, epsilon=epsilon
+        )
+        if not np.isfinite(price) or price <= 0.0:
+            raise ValueError("bond price must be finite and positive")
+        return price**(-1.0 / maturity_years) - 1.0
+
+    def ezclimate_term_structure_price(self, m, payment=0.01,
+                                       lower=0.0, upper=1.5):
+        """Reproduce EZClimate's deferred-perpetuity bond-price convention.
+
+        This is intentionally distinct from :meth:`zero_coupon_bond_price`.
+        The original EZClimate ``find_term_structure`` routine applies a
+        marginal consumption payment in the penultimate utility subperiod and
+        finds the date-zero payment with equal utility.  Its output is then
+        converted to a perpetuity yield beginning in that penultimate period.
+        """
+        payment = float(payment)
+        if payment <= 0.0:
+            raise ValueError("payment must be positive")
+        max_index = int(round(self.tree.decision_times[-1] / self.period_len))
+        if max_index < 1:
+            raise ValueError("model horizon must contain at least two subperiods")
+
+        period_cons_eps = np.zeros(max_index + 1)
+        period_cons_eps[-2] = payment
+        target_utility = float(np.asarray(
+            self.adjusted_utility(m, period_cons_eps=period_cons_eps)
+        ).reshape(-1)[0])
+
+        def objective(price):
+            initial_utility = float(np.asarray(self.adjusted_utility(
+                m, first_period_consadj=payment * price
+            )).reshape(-1)[0])
+            return target_utility - initial_utility
+
+        return brentq(objective, float(lower), float(upper))
+
+    @staticmethod
+    def ezclimate_perpetuity_yield(price, start_year,
+                                   lower=0.1, upper=100000.0):
+        """Convert an EZClimate deferred-perpetuity price to percent yield.
+
+        This is algebraically identical to EZClimate's ``perpetuity_yield``;
+        its return value is in percentage points (e.g. ``3.11``, not ``.0311``).
+        """
+        price = float(price)
+        start_year = float(start_year)
+        if price <= 0.0 or start_year <= 0.0:
+            raise ValueError("price and start_year must be positive")
+
+        def objective(yield_percent):
+            return price - (100.0 / (yield_percent + 100.0))**start_year * (
+                yield_percent + 100.0
+            ) / yield_percent
+
+        return brentq(objective, float(lower), float(upper))
+
+    def ezclimate_deferred_perpetuity_yield(self, m, payment=0.01):
+        """Return the original EZClimate-style deferred-perpetuity yield.
+
+        The perpetuity starts one utility subperiod before the terminal model
+        date. The result is in percentage points, matching EZClimate output.
+        """
+        price = self.ezclimate_term_structure_price(m, payment=payment)
+        start_year = float(self.tree.decision_times[-1] - self.period_len)
+        return self.ezclimate_perpetuity_yield(price, start_year)
 
     def _require_nonlog_marginal_adjustments(self):
         if self.is_log_eis:

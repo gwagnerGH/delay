@@ -17,6 +17,7 @@ except:
 
 import numpy as np
 import multiprocessing as mp
+import os
 
 from src.tools import _pickle_method, _unpickle_method
 from src.tools import write_columns_csv, append_to_existing
@@ -134,7 +135,8 @@ class DamageSimulation(object):
         dnum = len(self.mitigation_constants)
 
         # parallelize using Pool
-        pool = mp.Pool(processes=dnum)
+        worker_count = max(1, min(dnum, int(os.environ.get("DAMAGE_SIMULATION_WORKERS", dnum))))
+        pool = mp.Pool(processes=worker_count)
         self.d = np.array(pool.map(self._run_path, self.mitigation_constants))
 
         if write_to_file:

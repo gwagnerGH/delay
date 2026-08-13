@@ -1,7 +1,10 @@
 """Improved Tree diagram class with flexible spacing.
 
-Based on original TreeDiagram by Adam Michael Bauer
-Enhanced to allow for more spacing by TM
+Theo Moers
+tlm2160@columbia.edu
+Columbia University
+
+based originally on Adam Bauer
 """
 
 import numpy as np

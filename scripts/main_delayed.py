@@ -16,8 +16,11 @@ from src.climate import BPWClimate
 from src.damage import BPWDamage
 from src.utility import EZUtility
 from src.analysis.climate_output import ClimateOutput
-from src.analysis.delayed_action import get_delay_nodes, ConstraintAnalysis
-from src.config import DEFAULT_DECISION_TIMES
+from src.analysis.delayed_action import (
+    ConstraintAnalysis,
+    fixed_delay_decision_times,
+    get_delay_nodes_for_year,
+)
 from src.tools import import_csv
 from src.optimization import GeneticAlgorithm, GradientSearch
 
@@ -68,9 +71,7 @@ def main():
                         t_unc, no_free_lunch]
         pprint.pprint(set(zip(header, model_params)))
 
-        decision_times_delay = DEFAULT_DECISION_TIMES.copy()
-        if delay_years > 0:
-            decision_times_delay[1] = delay_years
+        decision_times_delay = fixed_delay_decision_times()
         decision_times_baseline = decision_times_delay.copy()
 
         t_baseline = TreeModel(decision_times=decision_times_baseline,
@@ -238,8 +239,14 @@ def main():
 
             print(f"Running delayed action scenario with {delay_years}-year delay...\n")
 
-            fixed_indices_delay = get_delay_nodes(t_delay, 1)
-            fixed_values_delay = np.zeros(len(fixed_indices_delay))
+            fixed_indices_delay = get_delay_nodes_for_year(t_delay, delay_years)
+            fixed_values_delay = (
+                np.zeros(len(fixed_indices_delay))
+                if len(fixed_indices_delay) else None
+            )
+            fixed_indices_arg = (
+                fixed_indices_delay if len(fixed_indices_delay) else None
+            )
 
             print(f"Total decision nodes:        {t_delay.num_decision_nodes}")
             print(f"Number of nodes constrained: {len(fixed_indices_delay)}")
@@ -254,7 +261,7 @@ def main():
                 num_feature=t_delay.num_decision_nodes,
                 utility=u_delay,
                 fixed_values=fixed_values_delay,
-                fixed_indices=fixed_indices_delay,
+                fixed_indices=fixed_indices_arg,
                 print_progress=True
             )
 
@@ -264,7 +271,7 @@ def main():
                 accuracy=5.e-7,
                 iterations=N_iters_gs,
                 fixed_values=fixed_values_delay,
-                fixed_indices=fixed_indices_delay,
+                fixed_indices=fixed_indices_arg,
                 print_progress=True
             )
 

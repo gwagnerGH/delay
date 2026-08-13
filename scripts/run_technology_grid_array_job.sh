@@ -1,6 +1,6 @@
 #!/bin/bash
 set -euo pipefail
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/_cluster_env.sh"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/scripts/_cluster_env.sh"
 
 # Export KEY=VALUE params passed after the script name (from grid_run)
 for kv in "$@"; do
@@ -15,14 +15,18 @@ echo "TECH_CHG_LEVELS=${TECH_CHG_LEVELS:-unset}"
 echo "TECH_SCALE_LEVELS=${TECH_SCALE_LEVELS:-unset}"
 echo "================================================"
 
-export OMP_NUM_THREADS="${OMP_NUM_THREADS:-4}"
-export MKL_NUM_THREADS="${MKL_NUM_THREADS:-4}"
-export OPENBLAS_NUM_THREADS="${OPENBLAS_NUM_THREADS:-4}"
-export NUMEXPR_NUM_THREADS="${NUMEXPR_NUM_THREADS:-4}"
+export OMP_NUM_THREADS="${OMP_NUM_THREADS:-1}"
+export MKL_NUM_THREADS="${MKL_NUM_THREADS:-1}"
+export OPENBLAS_NUM_THREADS="${OPENBLAS_NUM_THREADS:-1}"
+export NUMEXPR_NUM_THREADS="${NUMEXPR_NUM_THREADS:-1}"
 export OMP_PROC_BIND=spread
 export OMP_PLACES=cores
 export OMP_MAX_ACTIVE_LEVELS=1
 export OMP_NESTED=FALSE
 export MKL_DYNAMIC=FALSE
+export DISABLE_OPTIMAL_CACHE="${DISABLE_OPTIMAL_CACHE:-1}"
 
-python -u scripts/main_technology_grid_cluster.py
+export ADJOINT_FAIL_ON_VALUE_MISMATCH="${ADJOINT_FAIL_ON_VALUE_MISMATCH:-0}"
+export ADJOINT_VALUE_PARITY_MODE="${ADJOINT_VALUE_PARITY_MODE:-off}"
+
+python -u main_technology_grid_cluster.py

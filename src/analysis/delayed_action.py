@@ -4,12 +4,61 @@ This module implements delayed action functionality similar to EZClimate's
 constraint_first_period function. It allows forcing mitigation to be zero
 for the first N periods to analyze the economic cost of delaying climate action.
 
-Addition by Theo 
+Theo Moers
+tlm2160@columbia.edu
+Columbia University
 """
 
 import numpy as np
 from scipy.optimize import brentq
 from src.optimization import GeneticAlgorithm, GradientSearch
+
+
+FIXED_DELAY_DECISION_TIMES = [0, 5, 10, 15, 35, 75, 125, 175, 225]
+SUPPORTED_FIXED_DELAY_YEARS = [0, 5, 10, 15]
+FIXED_DELAY_PERIOD_LEN = 5.0
+FIXED_DELAY_EMISSIONS_TIME_STEP = 5
+FIXED_DELAY_DAMAGE_FILE_TAG = "_FIXEDLEARN_GRID5"
+
+
+def fixed_delay_decision_times():
+    """Return the fixed learning grid used for corrected delay runs."""
+
+    return list(FIXED_DELAY_DECISION_TIMES)
+
+
+def validate_fixed_delay_year(delay_year):
+    """Validate and normalize supported fixed-learning delay years."""
+
+    delay_year = int(delay_year)
+    if delay_year not in SUPPORTED_FIXED_DELAY_YEARS:
+        raise ValueError(
+            "Fixed-learning delay runs support delay years "
+            f"{SUPPORTED_FIXED_DELAY_YEARS}; got {delay_year}."
+        )
+    return delay_year
+
+
+def get_delay_periods_for_year(decision_times, delay_year):
+    """Return how many early decision periods are constrained by delay_year.
+
+    A delay constrains mitigation at every node whose decision date is strictly
+    before the re-entry year. The information tree itself is unchanged.
+    """
+
+    delay_year = validate_fixed_delay_year(delay_year)
+    decision_times = [int(value) for value in decision_times]
+    missing_grid_points = [
+        year for year in SUPPORTED_FIXED_DELAY_YEARS
+        if year not in decision_times
+    ]
+    if missing_grid_points:
+        raise ValueError(
+            "Fixed-learning delay runs require early decision years "
+            f"{SUPPORTED_FIXED_DELAY_YEARS}; missing {missing_grid_points} "
+            f"from decision_times={decision_times}."
+        )
+    return sum(1 for value in decision_times[:-1] if value < delay_year)
 
 
 def get_delay_nodes(tree, delay_periods):
@@ -42,7 +91,14 @@ def get_delay_nodes(tree, delay_periods):
         for node in range(start_node, end_node + 1):
             fixed_indices.append(node)
     
-    return np.array(fixed_indices)
+    return np.array(fixed_indices, dtype=int)
+
+
+def get_delay_nodes_for_year(tree, delay_year):
+    """Return node indices constrained by a fixed-learning delay year."""
+
+    delay_periods = get_delay_periods_for_year(tree.decision_times, delay_year)
+    return get_delay_nodes(tree, delay_periods)
 
 
 
@@ -53,8 +109,10 @@ def find_consumption_equivalence(m_delayed, m_optimal, u_delay, u_optimal=None, 
     This function uses the same methodology as EZClimate's find_bec() function.
     Two methods are supported:
     - 'first_period': Adjust only period-0 consumption (matches EZClimate's find_bec)
-    - 'first_years': Uniform flow adjustment to the first N calendar years'
+    - 'first_years': Uniform additive flow adjustment to the first N calendar years'
       consumption, with N controlled by compensation_years
+    - 'delay_window_proportional': Uniform proportional adjustment to every
+      node in the first N calendar years, with N controlled by compensation_years
     - 'permanent': Uniform percentage adjustment to ALL periods' consumption
     
     Parameters
@@ -66,7 +124,8 @@ def find_consumption_equivalence(m_delayed, m_optimal, u_delay, u_optimal=None, 
     utility : `EZUtility` object
         utility object for calculations
     method : str, optional
-        'first_period', 'first_years', or 'permanent' (default: 'first_period')
+        'first_period', 'first_years', 'delay_window_proportional', or
+        'permanent' (default: 'first_period')
     a : float, optional
         lower bound for root finding (default: -150)
     b : float, optional
@@ -116,6 +175,89 @@ def find_consumption_equivalence(m_delayed, m_optimal, u_delay, u_optimal=None, 
     print(f"Delayed utility: {cfp_u:.10f}")
     print(f"Constraint cost: {constraint_cost:.10f} ({constraint_cost/opt_u*100:.4f}%)")
     
+    def _validated_root(min_func, adjusted_utility_func, label):
+        if constraint_cost <= 0.0:
+            if abs(constraint_cost) <= max(1e-8, tol):
+                print("\nNo positive utility loss; nonnegative compensation is zero.")
+                return 0.0
+            print("\nError: constrained run has higher utility than comparator.")
+            print("This indicates optimizer noise or a mismatched comparator; returning NaN for monetary DWL.")
+            print(f"{'='*80}\n")
+            return None
+
+        def value_at(x):
+            try:
+                value = min_func(x)
+            except (FloatingPointError, ValueError, OverflowError):
+                return np.nan
+            return float(value) if np.isfinite(value) else np.nan
+
+        lower = 0.0
+        lower_value = value_at(lower)
+        if lower_value == 0.0:
+            delta_c = lower
+        else:
+            upper = max(float(b), 1.0)
+            upper_value = value_at(upper)
+            attempts = 0
+            while (
+                (not np.isfinite(lower_value) or not np.isfinite(upper_value)
+                 or np.sign(lower_value) == np.sign(upper_value))
+                and attempts < 20
+            ):
+                attempts += 1
+                upper *= 2.0
+                upper_value = value_at(upper)
+
+            if not np.isfinite(lower_value) or not np.isfinite(upper_value):
+                print("\nError: Compensation root bounds produced non-finite utilities.")
+                print(f"  f({lower}) = {lower_value}")
+                print(f"  f({upper}) = {upper_value}")
+                print("Returning NaN for monetary DWL rather than a spurious value.")
+                print(f"{'='*80}\n")
+                return None
+            if lower_value == 0.0:
+                delta_c = lower
+            elif upper_value == 0.0:
+                delta_c = upper
+            elif np.sign(lower_value) == np.sign(upper_value):
+                print(f"\nError: Root not bracketed in interval [{lower}, {upper}]")
+                print(f"  f({lower}) = {lower_value:.10e}")
+                print(f"  f({upper}) = {upper_value:.10e}")
+                print("Returning NaN for monetary DWL rather than a spurious value.")
+                print(f"{'='*80}\n")
+                return None
+            else:
+                try:
+                    delta_c = brentq(min_func, lower, upper, xtol=tol)
+                except ValueError as e:
+                    print(f"\nError: Root not found in interval [{lower}, {upper}]")
+                    print("Returning NaN for monetary DWL rather than a spurious value.")
+                    print(f"Error: {e}")
+                    print(f"{'='*80}\n")
+                    return None
+
+        print(f"\n{label}: {delta_c:.6f}")
+        print(f"({'increase' if delta_c > 0 else 'decrease'} of {abs(delta_c):.6f})")
+
+        u_check = adjusted_utility_func(delta_c)
+        if isinstance(u_check, np.ndarray):
+            u_check = float(u_check[0])
+
+        utility_gap = abs(u_check - opt_u)
+        print(f"\nVerification:")
+        print(f" Adjusted utility:  {u_check:.10f}")
+        print(f" Target utility:    {opt_u:.10f}")
+        print(f" Difference:        {utility_gap:.2e}")
+
+        if not np.isfinite(u_check) or utility_gap > max(1e-6, 10 * tol):
+            print("Error: Compensation root failed verification.")
+            print("Returning NaN for monetary DWL rather than a spurious value.")
+            print(f"{'='*80}\n")
+            return None
+
+        return delta_c
+
     if method == 'first_period':
         def min_func(delta_con):
             base_utility = u_delay.utility(m_delayed)
@@ -127,28 +269,14 @@ def find_consumption_equivalence(m_delayed, m_optimal, u_delay, u_optimal=None, 
                 new_utility = float(new_utility[0])
             
             return new_utility - base_utility - constraint_cost
-        
-        try:
-            delta_c = brentq(min_func, a, b, xtol=tol)
-            print(f"\nFirst-period compensation: {delta_c:.6f}")
-            print(f"({'increase' if delta_c > 0 else 'decrease'} of {abs(delta_c):.6f} in period-0 consumption)")
-            
-            u_check = u_delay.adjusted_utility(m_delayed, first_period_consadj=delta_c)
-            if isinstance(u_check, np.ndarray):
-                u_check = float(u_check[0])
-            
-            print(f"\nVerification:")
-            print(f" Adjusted utility:  {u_check:.10f}")
-            print(f" Target utility:    {opt_u:.10f}")
-            print(f" Difference:        {abs(u_check - opt_u):.2e}")
-            
-            return delta_c
-        except ValueError as e:
-            print(f"\nError: Root not found in interval [{a}, {b}]")
-            print(f"Try expanding the search interval.")
-            print(f"Error: {e}")
-            print(f"{'='*80}\n")
-            return None
+
+        return _validated_root(
+            min_func,
+            lambda delta_con: u_delay.adjusted_utility(
+                m_delayed, first_period_consadj=delta_con
+            ),
+            "First-period compensation",
+        )
 
     elif method == 'first_years':
         if compensation_years <= 0:
@@ -183,34 +311,60 @@ def find_consumption_equivalence(m_delayed, m_optimal, u_delay, u_optimal=None, 
 
             return new_utility - base_utility - constraint_cost
 
-        try:
-            delta_c = brentq(min_func, a, b, xtol=tol)
-            print(f"\nFirst-{compensation_years:g}-year compensation: {delta_c:.6f}")
-            print(
-                f"({'increase' if delta_c > 0 else 'decrease'} of "
-                f"{abs(delta_c):.6f} in each compensated annual flow)"
-            )
-
-            u_check = u_delay.adjusted_utility(
+        return _validated_root(
+            min_func,
+            lambda delta_con: u_delay.adjusted_utility(
                 m_delayed,
-                period_consadj=compensation_schedule(delta_c)
-            )
-            if isinstance(u_check, np.ndarray):
-                u_check = float(u_check[0])
-
-            print(f"\nVerification:")
-            print(f" Adjusted utility:  {u_check:.10f}")
-            print(f" Target utility:    {opt_u:.10f}")
-            print(f" Difference:        {abs(u_check - opt_u):.2e}")
-
-            return delta_c
-        except ValueError as e:
-            print(f"\nError: Root not found in interval [{a}, {b}]")
-            print(f"Try expanding the search interval.")
-            print(f"Error: {e}")
-            print(f"{'='*80}\n")
-            return None
+                period_consadj=compensation_schedule(delta_con)
+            ),
+            f"First-{compensation_years:g}-year compensation",
+        )
             
+    elif method == 'delay_window_proportional':
+        if compensation_years <= 0:
+            raise ValueError("compensation_years must be positive.")
+        if not np.isclose(compensation_years / u_delay.period_len,
+                          round(compensation_years / u_delay.period_len)):
+            raise ValueError(
+                "compensation_years must be an integer multiple of the utility "
+                f"period length. Got compensation_years={compensation_years} "
+                f"and period_len={u_delay.period_len}."
+            )
+
+        n_comp_periods = int(round(compensation_years / u_delay.period_len))
+        n_periods = int(round(u_delay.tree.decision_times[-1] / u_delay.period_len)) + 1
+        if n_comp_periods > n_periods:
+            raise ValueError(
+                "compensation_years extends beyond the utility horizon: "
+                f"{compensation_years} years for {n_periods} periods."
+            )
+
+        def multiplier_schedule(g):
+            schedule = np.ones(n_periods)
+            schedule[:n_comp_periods] = 1.0 + g
+            return schedule
+
+        def min_func(g):
+            base_utility = u_delay.utility(m_delayed)
+            new_utility = u_delay.adjusted_utility(
+                m_delayed,
+                period_consmult=multiplier_schedule(g)
+            )
+            if isinstance(base_utility, np.ndarray):
+                base_utility = float(base_utility[0])
+            if isinstance(new_utility, np.ndarray):
+                new_utility = float(new_utility[0])
+            return new_utility - base_utility - constraint_cost
+
+        return _validated_root(
+            min_func,
+            lambda g: u_delay.adjusted_utility(
+                m_delayed,
+                period_consmult=multiplier_schedule(g)
+            ),
+            f"First-{compensation_years:g}-year proportional compensation",
+        )
+
     elif method == 'permanent':
         print("\nPermanent method is currently disabled due to utility object issues.")
         return None  # Permanent method disabled for now due to utility object issues
@@ -255,8 +409,14 @@ class ConstraintAnalysis(object):
         optimal mitigation (baseline scenario)
     con_cost : float
         utility cost of constraint (opt_u - cfp_u)
+    delay_window_years : float or None
+        Length of the primary proportional compensation window.
+    delay_window_dwl_fraction : float or None
+        Common proportional consumption increase over the delay window.
+    delay_window_dwl_pct : float or None
+        delay_window_dwl_fraction expressed as a percentage.
     delta_c : float
-        first-period consumption compensation (absolute value)
+        legacy first-period consumption compensation (absolute value)
     delta_c_pct : float
         first-period compensation as % of year 0 delayed consumption
     delta_c_billions : float
@@ -285,12 +445,16 @@ class ConstraintAnalysis(object):
     """
     
     def __init__(self, u_delay, u_optimal, m_delayed, m_optimal,
-                 compensation_years=5.0):
+                 compensation_years=5.0, delay_window_years=None):
         self.u_delay = u_delay
         self.u_optimal = u_optimal
         self.cfp_m = m_delayed  # constrained first period mitigation
         self.opt_m = m_optimal  # optimal mitigation
         self.compensation_years = float(compensation_years)
+        self.delay_window_years = (
+            float(delay_window_years)
+            if delay_window_years is not None else None
+        )
         
         # Calculate constraint cost
         self.con_cost = self._constraint_cost()
@@ -302,6 +466,14 @@ class ConstraintAnalysis(object):
         # Calculate consumption compensation (matches EZClimate's _delta_consumption)
         self.delta_c = self._delta_consumption()
         self.delta_c_5yr = self._delta_consumption_first_years(self.compensation_years)
+        self.delay_window_dwl_fraction = (
+            self._delay_window_proportional_dwl(self.delay_window_years)
+            if self.delay_window_years is not None else None
+        )
+        self.delay_window_dwl_pct = (
+            self.delay_window_dwl_fraction * 100.0
+            if self.delay_window_dwl_fraction is not None else None
+        )
         
         # Calculate year 0 consumption for the delayed path (for percentage calculations)
         cons_tree_delayed = self.u_delay.utility(self.cfp_m, return_trees=True)['Consumption']
@@ -401,6 +573,14 @@ class ConstraintAnalysis(object):
             compensation_years=compensation_years
         )
     
+    def _delay_window_proportional_dwl(self, delay_window_years):
+        """Find the common proportional consumption equivalent over a delay window."""
+        return find_consumption_equivalence(
+            self.cfp_m, self.opt_m, self.u_delay, self.u_optimal,
+            method='delay_window_proportional', a=-150, b=150,
+            compensation_years=delay_window_years,
+        )
+
     def _delta_consumption_permanent(self):
         """Calculate permanent (lifetime) consumption compensation."""
         return find_consumption_equivalence(self.cfp_m, self.opt_m, self.u_delay, self.u_optimal,
@@ -444,7 +624,14 @@ class ConstraintAnalysis(object):
         print(f"  Marginal utility (consumption):    {self.delta_u:.10e}")
         print(f"  Marginal utility (mitigation):     {self.delta_u2:.10e}")
         
-        print(f"\nConsumption Compensation (First-Period Method):")
+        if self.delay_window_dwl_pct is not None:
+            print(
+                f"\nPrimary Delay-Window Proportional DWL "
+                f"({self.delay_window_years:g} years): "
+                f"{self.delay_window_dwl_pct:.4f}%"
+            )
+
+        print(f"\nConsumption Compensation (First-Period Method, Robustness):")
         print(f"  Year 0 consumption (delayed):      {self.year0_cons_delayed:.6f}")
         if self.delta_c is not None:
             print(f"  Delta consumption (absolute):      {self.delta_c:.6f}")
@@ -488,6 +675,9 @@ class ConstraintAnalysis(object):
         # Compile results (extended from EZClimate's save_output)
         data = [
             [self.con_cost],
+            [self.delay_window_years if self.delay_window_years is not None else np.nan],
+            [self.delay_window_dwl_fraction if self.delay_window_dwl_fraction is not None else np.nan],
+            [self.delay_window_dwl_pct if self.delay_window_dwl_pct is not None else np.nan],
             [self.delta_c] if self.delta_c is not None else [np.nan],
             [self.delta_c_pct] if self.delta_c_pct is not None else [np.nan],
             [self.delta_c_billions],
@@ -507,6 +697,9 @@ class ConstraintAnalysis(object):
         
         headers = [
             "Constraint Cost",
+            "Delay Window Years",
+            "Delay Window Proportional DWL",
+            "Delay Window Proportional DWL %",
             "Delta Consumption (First Period)",
             "Delta Consumption (First Period) %",
             "Delta Consumption $b",
