@@ -37,7 +37,15 @@ data/*/logs/
 data/*/optimal/
 data/*/partial/
 data/*/samples/
-data/new_outputs/*
+!data/new_outputs/
+# These Gaussian raw-analysis tables exceed GitHub's 100 MB per-file limit.
+# They remain available in the local research checkout but cannot be published
+# through ordinary Git.
+data/new_outputs/paper-august-gaussian-ensemble-array-v2/analysis/paper-august-gaussian-ensemble-array-v2_consolidated_results*.csv
+data/new_outputs/paper-august-gaussian-ensemble-array-v2/analysis/paper-august-gaussian-ensemble-array-v2_local_optima*
+data/new_outputs/paper-august-gaussian-ensemble-array-v2/analysis/paper-august-gaussian-ensemble-array-v2_node_prices*.csv
+# iCloud-created copy artifacts; the canonical counterparts have no " 2" suffix.
+data/new_outputs/**/* 2*
 data/simulated_*
 aux_notebooks/archive/
 archive/

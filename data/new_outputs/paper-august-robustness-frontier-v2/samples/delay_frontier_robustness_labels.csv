@@ -1,0 +1,5 @@
+sample_index,label
+0,low_eis
+1,high_ra
+2,low_ra
+3,no_endogenous_learning

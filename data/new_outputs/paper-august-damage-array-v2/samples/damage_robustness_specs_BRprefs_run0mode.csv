@@ -1,0 +1,9 @@
+damage_spec_index,label,dam_func,tip_on,d_unc,t_unc
+0,df0_TP1_dunc1_tunc1,0,1,1,1
+1,df0_TP0_dunc1_tunc1,0,0,1,1
+2,df1_TP1_dunc1_tunc1,1,1,1,1
+3,df1_TP0_dunc1_tunc1,1,0,1,1
+4,df2_TP1_dunc1_tunc1,2,1,1,1
+5,df2_TP0_dunc1_tunc1,2,0,1,1
+6,df3_TP1_dunc1_tunc1,3,1,1,1
+7,df3_TP0_dunc1_tunc1,3,0,1,1
