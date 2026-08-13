@@ -1,9 +1,22 @@
 # Economic Damages of Delayed Climate Action
 
-This repository contains the model runs and analysis for the delayed climate
-action paper.
+This repository contains the code, inputs, run outputs, and analysis notebooks
+for the delayed-climate-policy paper.
 
-## Reproducing the Paper Results
+## Repository layout
+
+- `src/` contains the model and reusable analysis code.
+- `scripts/` contains local entry points, cluster wrappers, diagnostics, and
+  postprocessing utilities.
+- `data/` contains model inputs. Current paper outputs are in
+  `data/new_outputs/`; archived outputs are deliberately excluded.
+- `notebooks/paper_facing_plots.ipynb` regenerates the paper figures and
+  tables. `notebooks/frontier_tree_metrics.ipynb` produces the decision-tree
+  diagnostics.
+- `aux_notebooks/` contains supporting input-preparation notebooks.
+- `tests/` contains regression and validation tests.
+
+## Environment
 
 Create the conda environment:
 
@@ -12,63 +25,55 @@ conda env create -f environment.yaml
 conda activate econ
 ```
 
-The paper-facing analysis reads run outputs from `data/new_outputs/`. The
-current input folders are:
+## Current paper outputs
+
+The paper-facing notebook reads the following current v2 run folders:
 
 ```text
-mean-parameter-BY2025-fixedlearn-run0-v1
-delay-frontier-BY2025-fixedlearn-run0-v1
-delay-frontier-BY2025-fixedlearn-robustness-v1
-partial-mitigation-BY2025-fixedlearn-run0-cap-v1
-tree-robustness-BY2025-fixedlearn-run0-v1
-preference-grid-BY2025-fixedlearn-run0-v1
-technology-grid-BY2025-fixedlearn-run0-v1
-damage-robustness-BY2025-fixedlearn-run0-v1
-ensemble-BY2025-fixedlearn-run0gauss-v1
+paper-august-main-frontier-v2
+paper-august-robustness-frontier-v2
+paper-august-partial-mitigation-array-v2
+paper-august-tree-array-v2
+paper-august-preference-array-v2
+paper-august-technology-array-v2
+paper-august-damage-array-v2
+paper-august-mac-shift-array-v2
+paper-august-gaussian-ensemble-array-v2
 ```
 
-To print the exact local and SGE cluster commands for those folders:
+The figure and table artifacts are written to:
 
-```bash
-python scripts/reproduce_main_spec.py
+```text
+data/new_outputs/paper_facing_plots/figures
+data/new_outputs/paper_facing_plots/tables
 ```
 
-To run the local benchmarks:
+## Regenerating paper figures
 
-```bash
-python scripts/reproduce_main_spec.py --execute-local
-```
-
-To submit the cluster array jobs:
-
-```bash
-python scripts/reproduce_main_spec.py --submit-cluster
-```
-
-Cluster submission assumes an SGE environment with `grid_run` available. The
-wrapper scripts activate the `econ` conda environment by default; set
-`EZDELAY_CONDA_ENV=<name>` before submission to use a different environment.
-
-The cluster wrapper scripts are `run_*_array_job.sh`; each calls the
-matching root-level `main_*_cluster.py` script and writes results under
-`data/new_outputs/$OUTPUT_FOLDER`. Use the `OUTPUT_FOLDER` names above when
-rerunning individual jobs by hand. The fixed-learning grid keeps damage
-learning nodes at 0, 5, 10, and 15 years for every delay comparison. The
-main delay-frontier folders use array ranges `1-4` for
-`delay-frontier-BY2025-fixedlearn-run0-v1` and `1-20` for
-`delay-frontier-BY2025-fixedlearn-robustness-v1`. The full Gaussian ensemble
-rerun is `1-4000` for `ensemble-BY2025-fixedlearn-run0gauss-v1`.
-
-After the run outputs are present, regenerate the paper-facing tables and
-figures with:
+From the repository root, run:
 
 ```bash
 jupyter nbconvert --to notebook --execute notebooks/paper_facing_plots.ipynb --inplace
 ```
 
-The resulting paper tables and figures are written to:
+The notebook evaluates the Gaussian-ensemble figures using only draws that
+satisfy the terminal-value admissibility screen. It writes the draw-level
+diagnostic to:
 
 ```text
-data/new_outputs/paper_facing_plots/tables
-data/new_outputs/paper_facing_plots/figures
+data/new_outputs/paper_facing_plots/tables/gaussian_terminal_admissibility_audit.csv
 ```
+
+## Running model scripts
+
+Run local entry points from the repository root, for example:
+
+```bash
+python scripts/main.py
+python scripts/main_delayed.py
+```
+
+Cluster wrappers are the `scripts/run_*_array_job.sh` files. They assume an
+SGE-style environment and may require site-specific paths, scheduler options,
+and a conda environment name. Set `EZDELAY_CONDA_ENV` when a cluster uses a
+different environment name.
