@@ -1,7 +1,7 @@
 # Economic Damages of Delayed Climate Action
 
 This repository contains the code, inputs, run outputs, and analysis notebooks
-for the delayed-climate-policy paper.
+for the paper ``Economic Damages of Delayed Climate Action.''
 
 ## Repository layout
 
@@ -9,10 +9,9 @@ for the delayed-climate-policy paper.
 - `scripts/` contains local entry points, cluster wrappers, diagnostics, and
   postprocessing utilities.
 - `data/` contains model inputs. Current paper outputs are in
-  `data/new_outputs/`; archived outputs are deliberately excluded.
+  `data/new_outputs/`.
 - `notebooks/paper_facing_plots.ipynb` regenerates the paper figures and
-  tables. `notebooks/frontier_tree_metrics.ipynb` produces the decision-tree
-  diagnostics.
+  tables. `notebooks/frontier_tree_metrics.ipynb` produces the decision trees.
 - `aux_notebooks/` contains supporting input-preparation notebooks.
 - `tests/` contains regression and validation tests.
 
@@ -27,7 +26,7 @@ conda activate econ
 
 ## Current paper outputs
 
-The paper-facing notebook reads the following current v2 run folders:
+The paper-facing notebook reads the following current run folders:
 
 ```text
 paper-august-main-frontier-v2
@@ -50,19 +49,7 @@ data/new_outputs/paper_facing_plots/tables
 
 ## Regenerating paper figures
 
-From the repository root, run:
-
-```bash
-jupyter nbconvert --to notebook --execute notebooks/paper_facing_plots.ipynb --inplace
-```
-
-The notebook evaluates the Gaussian-ensemble figures using only draws that
-satisfy the terminal-value admissibility screen. It writes the draw-level
-diagnostic to:
-
-```text
-data/new_outputs/paper_facing_plots/tables/gaussian_terminal_admissibility_audit.csv
-```
+To regenerate the figures, run ``notebooks/paper_facing_plots.ipynb``.
 
 ## Running model scripts
 
