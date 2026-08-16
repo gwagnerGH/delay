@@ -1,7 +1,7 @@
 # Economic Damages of Delayed Climate Action
 
 This repository contains the code, inputs, run outputs, and analysis notebooks
-for the paper ``Economic Damages of Delayed Climate Action.''
+for the paper ``The Welfare Cost of Delayed Climate Policy'' (Kent D. Daniel, Robert B. Litterman, and Gernot Wagner).
 
 ## Repository layout
 
