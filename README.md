@@ -1,7 +1,6 @@
 # The welfare cost of delayed climate policy
 
-This repository contains the code, inputs, run outputs, and analysis notebooks
-for the paper ``The Welfare Cost of Delayed Climate Policy'' (Kent D. Daniel, Robert B. Litterman, and Gernot Wagner).
+This repository contains the code, inputs, run outputs, and analysis notebooks for the paper ``The Welfare Cost of Delayed Climate Policy'' (Kent D. Daniel, Robert B. Litterman, and Gernot Wagner): [gwagner.com/delay](https://gwagner.com/delay)
 
 ## Repository layout
 
