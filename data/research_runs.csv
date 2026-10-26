@@ -1,5 +1,5 @@
 run,name,RA,EIS,preference,growth,tech_change,tech_scale,dam_func,baseline_num,tip_on,bs_premium,d_unc,t_unc,no_free_lunch
-0,damage0,10,0.833,0.002,0.015,1.5,1.5,0,2,1,10000,1,1,0
+0,damage0,10,2.2,0.005,0.015,1.5,0,0,2,1,10000,1,1,0
 1,damage1,10,0.833,0.002,0.015,1.5,0,1,2,1,10000,1,1,0
 2,damage2,10,0.833,0.002,0.015,1.5,0,2,2,1,10000,1,1,0
 3,damage3,10,0.833,0.002,0.015,1.5,0,3,2,1,10000,1,1,0

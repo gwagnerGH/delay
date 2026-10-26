@@ -1,0 +1,481 @@
+specification,source_folder,sample_index,delay_year,scenario,year,metric,mean,minimum,maximum
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2025,mitigation,0.0,0.0,0.0
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2025,ghg_ppm,425.6,425.6,425.6
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2025,baseline_gtco2_per_year,42.061796,42.061796,42.061796
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2025,net_gtco2_per_year,42.061796,42.061796,42.061796
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2025,interval_mac,0.0,-0.0,-0.0
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2025,mitigated_gtco2_per_year,0.0,0.0,0.0
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2030,mitigation,0.0,0.0,0.0
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2030,ghg_ppm,447.78084386976184,447.78084386976184,447.78084386976184
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2030,baseline_gtco2_per_year,43.476063,43.476063,43.476063
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2030,net_gtco2_per_year,43.476063,43.476063,43.476063
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2030,interval_mac,0.0,-0.0,-0.0
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2030,mitigated_gtco2_per_year,0.0,0.0,0.0
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2035,mitigation,0.7263601382072224,0.5983961547471494,0.8394167685774998
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2035,ghg_ppm,465.5475315098372,465.5475315098372,465.5475315098372
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2035,baseline_gtco2_per_year,43.864481,43.864481,43.864481
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2035,net_gtco2_per_year,12.003070518451915,7.043900103650863,17.616144239620606
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2035,interval_mac,241.24204436287084,161.66915256652246,321.89200146357246
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2035,mitigated_gtco2_per_year,31.86141048154808,26.24833676037939,36.820580896349135
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2040,mitigation,0.8278213620948947,0.6139962911812852,0.9950428853439696
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2040,ghg_ppm,463.2395415391622,460.3969753924154,466.45692106122254
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2040,baseline_gtco2_per_year,44.2529,44.2529,44.2529
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2040,net_gtco2_per_year,7.619404045350834,0.2193666991618444,17.081783525983703
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2040,interval_mac,271.78634604240256,142.11697631567188,405.73708771790535
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2040,mitigated_gtco2_per_year,36.63349595464916,27.171116474016294,44.03353330083815
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2060,mitigation,1.0404173699555366,0.7088958977731511,1.2879481765570884
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2060,ghg_ppm,456.4431167367743,441.3273593342829,475.49717185674905
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2060,baseline_gtco2_per_year,40.196485,40.196485,40.196485
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2060,net_gtco2_per_year,-1.6246362051571803,-11.574504559754356,11.7013616786
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2060,interval_mac,330.90870551961143,129.6845787358869,542.7070945070997
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2060,mitigated_gtco2_per_year,41.821121205157176,28.4951233214,51.770989559754355
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2100,mitigation,1.5526593510987252,1.059239489939591,2.016089367569381
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2100,ghg_ppm,422.9426979393939,392.5454152483725,462.80435543513374
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2100,baseline_gtco2_per_year,9.682859,9.682859,9.682859
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2100,net_gtco2_per_year,-5.351322571720451,-9.838650077573492,-0.5736076283169776
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2100,interval_mac,391.1894751051576,162.3935201239973,569.2217746893539
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2100,mitigated_gtco2_per_year,15.034181571720453,10.256466628316979,19.52150907757349
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2150,mitigation,2.0870663921491492,1.3453124094342788,2.976183048315616
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2150,ghg_ppm,376.5876093161812,358.1576709894214,426.1010388652242
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2150,baseline_gtco2_per_year,9.682859,9.682859,9.682859
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2150,net_gtco2_per_year,-10.525910598818921,-19.1351018150303,-3.343611371502391
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2150,interval_mac,266.30466477814025,139.07615630480657,309.55649411078514
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2150,mitigated_gtco2_per_year,20.208769598818918,13.026470371502391,28.8179608150303
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2200,mitigation,0.122814391594431,0.0,0.9872868960609033
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2200,ghg_ppm,320.2279578156825,306.02523222861026,389.4923334261272
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2200,baseline_gtco2_per_year,9.682859000000004,9.682859,9.682859
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2200,net_gtco2_per_year,8.493664563020342,0.1230991928946184,9.682859
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2200,interval_mac,1.6132345622668205,-0.0,29.868084410060995
+Baseline,download-delay-frontier-main,run0_params,10,delayed,2200,mitigated_gtco2_per_year,1.189194436979661,0.0,9.559759807105381
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2025,mitigation,0.5994228473167492,0.5994228473167492,0.5994228473167492
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2025,ghg_ppm,425.6,425.6,425.6
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2025,baseline_gtco2_per_year,42.061796,42.061796,42.061796
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2025,net_gtco2_per_year,16.848994478423748,16.848994478423748,16.848994478423748
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2025,interval_mac,188.6410848655908,188.6410848655908,188.6410848655908
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2025,mitigated_gtco2_per_year,25.212801521576253,25.212801521576253,25.212801521576253
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2030,mitigation,0.636637925074426,0.588559069672984,0.6847167804758679
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2030,ghg_ppm,433.1784520595537,433.1784520595537,433.1784520595537
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2030,baseline_gtco2_per_year,43.476063,43.476063,43.476063
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2030,net_gtco2_per_year,15.797552461274977,13.707273114873995,17.88783180767596
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2030,interval_mac,197.36447518996232,169.14134515309823,225.5876052268264
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2030,mitigated_gtco2_per_year,27.67851053872503,25.588231192324045,29.768789885126008
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2035,mitigation,0.6790457605791467,0.5654205727873062,0.772964672708642
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2035,ghg_ppm,437.7531100377706,436.55493484361114,438.95128523193006
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2035,baseline_gtco2_per_year,43.864481,43.864481,43.864481
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2035,net_gtco2_per_year,14.078491136945466,9.958786800300556,19.06260102796209
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2035,interval_mac,209.46208644193678,145.87210600046342,268.5288813593496
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2035,mitigated_gtco2_per_year,29.78598986305453,24.80187997203791,33.90569419969944
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2040,mitigation,0.7800646473749573,0.5842019733887132,0.9148999266364432
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2040,ghg_ppm,440.71739592420613,437.3769463444467,444.5533174802025
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2040,baseline_gtco2_per_year,44.2529,44.2529,44.2529
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2040,net_gtco2_per_year,9.73277716618075,3.765925036550139,18.400268491826616
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2040,interval_mac,236.54024321298607,129.67068180870427,329.69045561121027
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2040,mitigated_gtco2_per_year,34.520122833819244,25.85263150817338,40.48697496344986
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2060,mitigation,0.987256386467553,0.6803481151238447,1.1643880646070532
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2060,ghg_ppm,442.1266751576559,429.13707410925025,460.27654009239944
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2060,baseline_gtco2_per_year,40.196485,40.196485,40.196485
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2060,net_gtco2_per_year,0.5122484702028038,-6.607822373156447,12.848882195646102
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2060,interval_mac,287.4468841902982,119.43194568235609,421.699500325392
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2060,mitigated_gtco2_per_year,39.6842365297972,27.3476028043539,46.80430737315645
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2100,mitigation,1.4204059206069535,1.025452818649477,1.757702850901227
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2100,ghg_ppm,415.1063399713148,391.7621404304513,452.4405471121205
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2100,baseline_gtco2_per_year,9.682859,9.682859,9.682859
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2100,net_gtco2_per_year,-4.070731252002325,-7.3367298691746035,-0.2464560541354531
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2100,interval_mac,332.73708515648593,149.2335090936463,486.89758909119337
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2100,mitigated_gtco2_per_year,13.753590252002326,9.929315054135454,17.019588869174605
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2150,mitigation,1.934157301358129,1.225032059372312,2.704983706555855
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2150,ghg_ppm,373.99552511749545,358.50672938196806,417.8724013692379
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2150,baseline_gtco2_per_year,9.682859,9.682859,9.682859
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2150,net_gtco2_per_year,-9.045313432871275,-16.509116827877722,-2.1789537013817264
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2150,interval_mac,249.97206024992994,111.08832169962696,306.6497590716456
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2150,mitigated_gtco2_per_year,18.728172432871272,11.861812701381726,26.191975827877723
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2200,mitigation,0.11087329080575502,0.0,0.8343161603583984
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2200,ghg_ppm,322.410930264786,308.7053434157001,386.04151700138505
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2200,baseline_gtco2_per_year,9.682859000000004,9.682859,9.682859
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2200,net_gtco2_per_year,8.609288558261879,1.604293257828239,9.682859
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2200,interval_mac,1.3576102187042403,-0.0,19.989305416460216
+Baseline,download-delay-frontier-main,run0_params,10,optimal,2200,mitigated_gtco2_per_year,1.0735704417381227,0.0,8.078565742171762
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2025,mitigation,0.0,0.0,0.0
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2025,ghg_ppm,425.6,425.6,425.6
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2025,baseline_gtco2_per_year,42.061796,42.061796,42.061796
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2025,net_gtco2_per_year,42.061796,42.061796,42.061796
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2025,interval_mac,0.0,-0.0,-0.0
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2025,mitigated_gtco2_per_year,0.0,0.0,0.0
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2030,mitigation,0.0,0.0,0.0
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2030,ghg_ppm,447.78084386976184,447.78084386976184,447.78084386976184
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2030,baseline_gtco2_per_year,43.476063,43.476063,43.476063
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2030,net_gtco2_per_year,43.476063,43.476063,43.476063
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2030,interval_mac,0.0,-0.0,-0.0
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2030,mitigated_gtco2_per_year,0.0,0.0,0.0
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2035,mitigation,0.7035993429295699,0.565746480085582,0.8262035991629535
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2035,ghg_ppm,465.5475315098372,465.5475315098372,465.5475315098372
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2035,baseline_gtco2_per_year,43.864481,43.864481,43.864481
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2035,net_gtco2_per_year,13.001460990453388,7.62348892238501,19.048305273469108
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2035,interval_mac,227.03838579999854,146.02244336409996,310.62202020170514
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2035,mitigated_gtco2_per_year,30.863020009546606,24.81617572653089,36.24099207761499
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2040,mitigation,0.8037388941080823,0.5722590524326993,0.9865511238882478
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2040,ghg_ppm,463.8118128506049,460.7291921579957,467.2778270053614
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2040,baseline_gtco2_per_year,44.2529,44.2529,44.2529
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2040,net_gtco2_per_year,8.685123092924444,0.5951517696857572,18.928777378601
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2040,interval_mac,256.45021829970926,124.91664201680746,396.9985633874908
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2040,mitigated_gtco2_per_year,35.567776907075555,25.324122621398995,43.65774823031424
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2060,mitigation,1.0150025579927395,0.6560829384653507,1.2851702691682971
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2060,ghg_ppm,458.72709638483434,442.2184515698655,479.3431935009186
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2060,baseline_gtco2_per_year,40.196485,40.196485,40.196485
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2060,net_gtco2_per_year,-0.6030500973167872,-11.462842447069418,13.824257005221607
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2060,interval_mac,314.8814407889482,111.23215202062435,539.9009206563876
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2060,mitigated_gtco2_per_year,40.79953509731679,26.372227994778395,51.65932744706942
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2100,mitigation,1.5065945338459124,0.98522456664903,2.0018251631264317
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2100,ghg_ppm,426.58034073765646,393.3974543105448,469.7265020360095
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2100,baseline_gtco2_per_year,9.682859,9.682859,9.682859
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2100,net_gtco2_per_year,-4.905283441400695,-9.700531797205237,0.1430684378013398
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2100,interval_mac,369.28480220507856,134.68349462252564,565.5650211799082
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2100,mitigated_gtco2_per_year,14.588142441400697,9.539790562198661,19.383390797205237
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2150,mitigation,2.0134361200578548,1.2334983226037002,2.867624783270821
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2150,ghg_ppm,381.18865115426263,359.0813808040729,434.2994256323119
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2150,baseline_gtco2_per_year,9.682859,9.682859,9.682859
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2150,net_gtco2_per_year,-9.812959056027283,-18.08394744131692,-2.260931334508142
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2150,interval_mac,256.7639642436478,113.01239393912894,308.7308493575758
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2150,mitigated_gtco2_per_year,19.495818056027286,11.943790334508142,27.76680644131692
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2200,mitigation,0.29213917946035883,0.0,1.2611369251063806
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2200,ghg_ppm,326.8523525337282,311.6557633570348,400.6046756423355
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2200,baseline_gtco2_per_year,9.682859000000004,9.682859,9.682859
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2200,net_gtco2_per_year,6.85411651690965,-2.528552025498644,9.682859
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2200,interval_mac,4.623128819345521,-0.0,56.05932392612667
+High RA (15),download-delay-frontier-robustness,high_ra,10,delayed,2200,mitigated_gtco2_per_year,2.828742483090351,0.0,12.211411025498645
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2025,mitigation,0.5798065313874139,0.5798065313874139,0.5798065313874139
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2025,ghg_ppm,425.6,425.6,425.6
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2025,baseline_gtco2_per_year,42.061796,42.061796,42.061796
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2025,net_gtco2_per_year,17.674091957315,17.674091957315,17.674091957315
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2025,interval_mac,177.51687959273897,177.51687959273897,177.51687959273897
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2025,mitigated_gtco2_per_year,24.387704042685,24.387704042685,24.387704042685
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2030,mitigation,0.6163034575680452,0.5639763511534216,0.6686305639826687
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2030,ghg_ppm,433.6563202828875,433.6563202828875,433.6563202828875
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2030,baseline_gtco2_per_year,43.476063,43.476063,43.476063
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2030,net_gtco2_per_year,16.681615051653843,14.406638476563964,18.956591626743723
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2030,interval_mac,185.9299700694591,156.60555755086494,215.2543825880533
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2030,mitigated_gtco2_per_year,26.79444794834616,24.51947137325628,29.06942452343604
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2035,mitigation,0.6575311046557051,0.5328976233380859,0.7617935552291714
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2035,ghg_ppm,438.6502382504194,437.34619221262074,439.9542842882181
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2035,baseline_gtco2_per_year,43.864481,43.864481,43.864481
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2035,net_gtco2_per_year,15.022220352920812,10.44880207072756,20.489203326141375
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2035,interval_mac,197.47087830713494,131.4224330474833,260.33196634936866
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2035,mitigated_gtco2_per_year,28.842260647079186,23.375277673858623,33.41567892927244
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2040,mitigation,0.7572124161653471,0.5438230428263954,0.9069665093703608
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2040,ghg_ppm,442.024135049238,438.33710957897455,446.2233463345042
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2040,baseline_gtco2_per_year,44.2529,44.2529,44.2529
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2040,net_gtco2_per_year,10.744054668676515,4.117001757484359,20.187153268107807
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2040,interval_mac,223.70257091571102,114.10885590404934,322.89819701722035
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2040,mitigated_gtco2_per_year,33.508845331323485,24.06574673189219,40.13589824251564
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2060,mitigation,0.9643484858019844,0.6306288509969941,1.1647777182382022
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2060,ghg_ppm,444.90265497167775,430.4934598222245,464.6896965441116
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2060,baseline_gtco2_per_year,40.196485,40.196485,40.196485
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2060,net_gtco2_per_year,1.433065555687818,-6.623485079496121,14.847421850332092
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2060,interval_mac,274.7018262216019,103.10861144531324,422.0661920409787
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2060,mitigated_gtco2_per_year,38.763419444312184,25.349063149667913,46.81997007949612
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2100,mitigation,1.382415338776664,0.9558428184298944,1.778994026455513
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2100,ghg_ppm,418.95414002105423,392.7432662255734,459.5868948856289
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2100,baseline_gtco2_per_year,9.682859,9.682859,9.682859
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2100,net_gtco2_per_year,-3.702873804811672,-7.542889320011003,0.4275677629807303
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2100,interval_mac,314.1160495819844,124.86333765047809,494.976516495744
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2100,mitigated_gtco2_per_year,13.385732804811672,9.25529123701927,17.225748320011004
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2150,mitigation,1.8852799741410307,1.1726189986249231,2.6233009181856977
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2150,ghg_ppm,378.50668384176225,361.52634227825376,426.138855201538
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2150,baseline_gtco2_per_year,9.682859,9.682859,9.682859
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2150,net_gtco2_per_year,-8.572041165131246,-15.718193905362646,-1.6714454244063248
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2150,interval_mac,242.3306612062246,99.42758751853869,305.018561605888
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2150,mitigated_gtco2_per_year,18.254900165131247,11.354304424406326,25.401052905362647
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2200,mitigation,0.2570082325024463,0.0,1.0723655506372527
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2200,ghg_ppm,328.08397468241515,313.84989276960897,395.0093371240635
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2200,baseline_gtco2_per_year,9.682859000000004,9.682859,9.682859
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2200,net_gtco2_per_year,7.194284522839596,-0.700705423277878,9.682859
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2200,interval_mac,3.6882958090243356,-0.0,36.997170698553866
+High RA (15),download-delay-frontier-robustness,high_ra,10,optimal,2200,mitigated_gtco2_per_year,2.488574477160405,0.0,10.383564423277878
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2025,mitigation,0.0,0.0,0.0
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2025,ghg_ppm,425.6,425.6,425.6
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2025,baseline_gtco2_per_year,42.061796,42.061796,42.061796
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2025,net_gtco2_per_year,42.061796,42.061796,42.061796
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2025,interval_mac,0.0,-0.0,-0.0
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2025,mitigated_gtco2_per_year,0.0,0.0,0.0
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2030,mitigation,0.0,0.0,0.0
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2030,ghg_ppm,447.78084386976184,447.78084386976184,447.78084386976184
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2030,baseline_gtco2_per_year,43.476063,43.476063,43.476063
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2030,net_gtco2_per_year,43.476063,43.476063,43.476063
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2030,interval_mac,0.0,-0.0,-0.0
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2030,mitigated_gtco2_per_year,0.0,0.0,0.0
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2035,mitigation,0.6855181395875333,0.5639455804094009,0.7947898823804425
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2035,ghg_ppm,465.5475315098372,465.5475315098372,465.5475315098372
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2035,baseline_gtco2_per_year,43.864481,43.864481,43.864481
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2035,net_gtco2_per_year,13.794583590907296,9.001435305330846,19.12730080309786
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2035,interval_mac,214.29956620487127,145.193115998695,285.1639857293041
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2035,mitigated_gtco2_per_year,30.069897409092704,24.737180196902138,34.863045694669154
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2040,mitigation,0.8053852818846969,0.602114120987863,0.9738249329215998
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2040,ghg_ppm,464.26642587369065,461.5190225958657,467.3231067597326
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2040,baseline_gtco2_per_year,44.2529,44.2529,44.2529
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2040,net_gtco2_per_year,8.612265659284692,1.1583226259137374,17.607604015336197
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2040,interval_mac,230.21725379239362,126.57012977190185,340.5538856847968
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2040,mitigated_gtco2_per_year,35.64063434071531,26.6452959846638,43.094577374086256
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2060,mitigation,1.0902942358101477,0.7367753658134553,1.3706194785237915
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2060,ghg_ppm,458.8955023655479,443.7457989541272,477.0078470166488
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2060,baseline_gtco2_per_year,40.196485,40.196485,40.196485
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2060,net_gtco2_per_year,-3.62951089532907,-14.897600309189418,10.580705059709931
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2060,interval_mac,245.60086097202606,104.3047232351795,385.57842711177574
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2060,mitigated_gtco2_per_year,43.82599589532907,29.61577994029007,55.094085309189424
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2100,mitigation,1.9620697471310788,1.199259127441349,2.5275506392890437
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2100,ghg_ppm,420.662601959314,387.6076611800169,461.645451366372
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2100,baseline_gtco2_per_year,9.682859,9.682859,9.682859
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2100,net_gtco2_per_year,-9.31558570963589,-14.791057455595672,-1.9293980354776143
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2100,interval_mac,178.0322187600283,103.64927786745989,246.81998378634432
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2100,mitigated_gtco2_per_year,18.99844470963589,11.612257035477615,24.47391645559567
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2150,mitigation,1.7477507408639128,1.3155751172086347,2.8243228097982724
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2150,ghg_ppm,359.57809573487566,342.84528235681,420.0607680668593
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2150,baseline_gtco2_per_year,9.682859,9.682859,9.682859
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2150,net_gtco2_per_year,-7.240364990930806,-17.66466053776049,-3.055669363839684
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2150,interval_mac,28.671264754918766,14.38116852071052,65.57913060228005
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2150,mitigated_gtco2_per_year,16.923223990930808,12.738528363839684,27.34751953776049
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2200,mitigation,0.07724811011810981,0.0,0.576263364457467
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2200,ghg_ppm,320.57151668268574,308.4203966252021,371.1986457751231
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2200,baseline_gtco2_per_year,9.682859000000004,9.682859,9.682859
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2200,net_gtco2_per_year,8.934876441709871,4.102982095092736,9.682859
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2200,interval_mac,0.049172391838516266,-0.0,1.002852578725027
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,delayed,2200,mitigated_gtco2_per_year,0.7479825582901308,0.0,5.579876904907264
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2025,mitigation,0.5573931241390054,0.5573931241390054,0.5573931241390054
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2025,ghg_ppm,425.6,425.6,425.6
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2025,baseline_gtco2_per_year,42.061796,42.061796,42.061796
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2025,net_gtco2_per_year,18.616840120662477,18.616840120662477,18.616840120662477
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2025,interval_mac,165.40589605269616,165.40589605269616,165.40589605269616
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2025,mitigated_gtco2_per_year,23.444955879337524,23.444955879337524,23.444955879337524
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2030,mitigation,0.5930419173082435,0.5479649520389474,0.6381188825775397
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2030,ghg_ppm,434.2023277564232,434.2023277564232,434.2023277564232
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2030,baseline_gtco2_per_year,43.476063,43.476063,43.476063
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2030,net_gtco2_per_year,17.692935241466017,15.733166259569284,19.652704223362747
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2030,interval_mac,172.74415093018627,148.8136566128441,196.67464524752845
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2030,mitigated_gtco2_per_year,25.783127758533986,23.823358776637257,27.74289674043072
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2035,mitigation,0.645280286712805,0.5366797224088321,0.7340226814579487
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2035,ghg_ppm,439.6759753395014,438.55261037661506,440.79934030238775
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2035,baseline_gtco2_per_year,43.864481,43.864481,43.864481
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2035,net_gtco2_per_year,15.559596123811613,11.666957035618756,20.32330351331251
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2035,interval_mac,181.2070246927225,127.54278236450004,230.07289253990464
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2035,mitigated_gtco2_per_year,28.304884876188385,23.541177486687488,32.19752396438124
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2040,mitigation,0.770078548774906,0.5800437286282121,0.9002234488201734
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2040,ghg_ppm,443.20771185392584,440.0585440800571,446.85617064981966
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2040,baseline_gtco2_per_year,44.2529,44.2529,44.2529
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2040,net_gtco2_per_year,10.174690988918961,4.41540174170575,18.584282881388592
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2040,interval_mac,194.96666903600251,111.37193197375068,265.0153245175017
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2040,mitigated_gtco2_per_year,34.078209011081036,25.668617118611404,39.83749825829425
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2060,mitigation,1.0478233365992242,0.7157539976644267,1.2365694355755064
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2060,ghg_ppm,444.7833513141875,432.2980620263424,462.34130444586094
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2060,baseline_gtco2_per_year,40.196485,40.196485,40.196485
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2060,net_gtco2_per_year,-1.922330032260675,-9.509259768569308,11.425690169191837
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2060,interval_mac,207.50838724200287,91.855918189353,294.51963767771474
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2060,mitigated_gtco2_per_year,42.118815032260684,28.770794830808164,49.70574476856931
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2100,mitigation,1.7796815143996332,1.1813861452008363,2.241261140610902
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2100,ghg_ppm,412.2635241758164,388.34124365741974,451.2077049859341
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2100,baseline_gtco2_per_year,9.682859,9.682859,9.682859
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2100,net_gtco2_per_year,-7.549546168838118,-12.018956606714545,-1.7563364685332246
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2100,interval_mac,151.290460953422,91.06317979937089,218.91566653153745
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2100,mitigated_gtco2_per_year,17.232405168838117,11.439195468533224,21.701815606714547
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2150,mitigation,1.6211701142392216,1.2574874834674037,2.5536830355385187
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2150,ghg_ppm,358.54027304947624,344.142591448696,411.2670572950464
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2150,baseline_gtco2_per_year,9.682859,9.682859,9.682859
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2150,net_gtco2_per_year,-6.014702631192277,-15.044093763811468,-2.493214996679699
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2150,interval_mac,24.623486756027305,12.680086996273996,57.837458935649465
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2150,mitigated_gtco2_per_year,15.697561631192276,12.1760739966797,24.726952763811468
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2200,mitigation,0.07102521490643694,0.0,0.5060662674724911
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2200,ghg_ppm,322.84981097902516,311.3212267372595,371.9572662640703
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2200,baseline_gtco2_per_year,9.682859000000004,9.682859,9.682859
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2200,net_gtco2_per_year,8.995131858616276,4.782690687407583,9.682859
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2200,interval_mac,0.0425884281481627,-0.0,0.7648846371237564
+Endogenous learning,download-delay-frontier-robustness,endogenous_learning,10,optimal,2200,mitigated_gtco2_per_year,0.6877271413837274,0.0,4.900168312592418
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2025,mitigation,0.0,0.0,0.0
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2025,ghg_ppm,425.6,425.6,425.6
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2025,baseline_gtco2_per_year,42.061796,42.061796,42.061796
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2025,net_gtco2_per_year,42.061796,42.061796,42.061796
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2025,interval_mac,0.0,-0.0,-0.0
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2025,mitigated_gtco2_per_year,0.0,0.0,0.0
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2030,mitigation,0.0,0.0,0.0
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2030,ghg_ppm,447.78084386976184,447.78084386976184,447.78084386976184
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2030,baseline_gtco2_per_year,43.476063,43.476063,43.476063
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2030,net_gtco2_per_year,43.476063,43.476063,43.476063
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2030,interval_mac,0.0,-0.0,-0.0
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2030,mitigated_gtco2_per_year,0.0,0.0,0.0
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2035,mitigation,0.7846680206221288,0.6752830759572555,0.8789420272599294
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2035,ghg_ppm,465.54753150983714,465.54753150983714,465.54753150983714
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2035,baseline_gtco2_per_year,43.864481,43.864481,43.864481
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2035,net_gtco2_per_year,9.445425518113023,5.310145145155343,14.24353934505141
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2035,interval_mac,281.8897226533289,203.50678881297068,357.72336584833465
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2035,mitigated_gtco2_per_year,34.41905548188698,29.620941654948588,38.55433585484465
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2040,mitigation,0.8872575724252021,0.705941813877257,1.0223990012192647
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2040,ghg_ppm,461.7735150699647,459.40319765550504,464.5237645657244
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2040,baseline_gtco2_per_year,44.2529,44.2529,44.2529
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2040,net_gtco2_per_year,4.989179373224775,-0.9912207610560008,13.012927504671136
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2040,interval_mac,314.81307709797863,186.3748232655662,435.0399893873217
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2040,mitigated_gtco2_per_year,39.263720626775225,31.23997249532886,45.244120761055996
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2060,mitigation,1.0995053465833386,0.8060950375486328,1.2977445102876928
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2060,ghg_ppm,450.7709280589773,438.5069718985346,466.9425441080882
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2060,baseline_gtco2_per_year,40.196485,40.196485,40.196485
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2060,net_gtco2_per_year,-3.9997651713569766,-11.968282741611588,7.794297914601946
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2060,interval_mac,373.55519956237015,170.10735108421872,552.6260101258911
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2060,mitigated_gtco2_per_year,44.19625017135698,32.402187085398054,52.16476774161159
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2100,mitigation,1.6754963617261542,1.16794883265142,2.0065801459153705
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2100,ghg_ppm,414.2300594267472,389.7718493308263,449.0327143460571
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2100,baseline_gtco2_per_year,9.682859,9.682859,9.682859
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2100,net_gtco2_per_year,-6.540736025607348,-9.74657362509796,-1.6262248657782965
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2100,interval_mac,447.3122139672099,209.54596894832576,566.8211347934697
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2100,mitigated_gtco2_per_year,16.223595025607352,11.309083865778296,19.42943262509796
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2150,mitigation,1.8563684329560344,1.36637786496015,2.6884038939886987
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2150,ghg_ppm,365.07770185228134,348.5375052985713,411.1827025480408
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2150,baseline_gtco2_per_year,9.682859,9.682859,9.682859
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2150,net_gtco2_per_year,-8.292094788364233,-16.34857684054352,-3.5475852071301746
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2150,interval_mac,238.5058189842184,144.05481534237757,306.36293800296437
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2150,mitigated_gtco2_per_year,17.974953788364232,13.230444207130175,26.03143584054352
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2200,mitigation,0.06593187686529181,0.0,0.6027797674759173
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2200,ghg_ppm,319.42618204022364,307.912142351452,375.9966076729904
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2200,baseline_gtco2_per_year,9.682859000000004,9.682859,9.682859
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2200,net_gtco2_per_year,9.04444993270802,3.846227503477907,9.682859
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2200,interval_mac,0.6813560975562647,-0.0,10.316377728171917
+Low RA (5),download-delay-frontier-robustness,low_ra,10,delayed,2200,mitigated_gtco2_per_year,0.6384090672919829,0.0,5.836631496522093
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2025,mitigation,0.6493098512858378,0.6493098512858378,0.6493098512858378
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2025,ghg_ppm,425.6,425.6,425.6
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2025,baseline_gtco2_per_year,42.061796,42.061796,42.061796
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2025,net_gtco2_per_year,14.75065749442475,14.75065749442475,14.75065749442475
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2025,interval_mac,219.2997320117767,219.2997320117767,219.2997320117767
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2025,mitigated_gtco2_per_year,27.31113850557525,27.31113850557525,27.31113850557525
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2030,mitigation,0.6871455419397715,0.6476874616093248,0.7266036222702182
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2030,ghg_ppm,431.9631670875928,431.9631670875928,431.9631670875928
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2030,baseline_gtco2_per_year,43.476063,43.476063,43.476063
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2030,net_gtco2_per_year,13.601680128457353,11.88619814215179,15.317162114762915
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2030,interval_mac,228.36016492736917,202.36161258022375,254.3587172745146
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2030,mitigated_gtco2_per_year,29.87438287154265,28.158900885237088,31.589864857848212
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2035,mitigation,0.7311648282065695,0.6385228248872473,0.806263067538792
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2035,ghg_ppm,435.5016373813284,434.51830088826216,436.48497387439465
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2035,baseline_gtco2_per_year,43.864481,43.864481,43.864481
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2035,net_gtco2_per_year,11.792315285264669,8.498169992942943,15.856008679667012
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2035,interval_mac,241.6541590821918,182.58024287046385,294.24948121670195
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2035,mitigated_gtco2_per_year,32.072165714735334,28.008472320332984,35.36631100705706
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2040,mitigation,0.8326067468055034,0.6694467001000968,0.93753498292808
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2040,ghg_ppm,437.4839937353397,434.7922998653047,440.61678787019696
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2040,baseline_gtco2_per_year,44.2529,44.2529,44.2529
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2040,net_gtco2_per_year,7.4076368942907385,2.7642581539819626,14.627942125140429
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2040,interval_mac,269.9843262183008,167.6796760646799,349.7657994697355
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2040,mitigated_gtco2_per_year,36.845263105709265,29.624957874859568,41.488641846018034
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2060,mitigation,1.0337760278657224,0.7722818886860124,1.156956689391046
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2060,ghg_ppm,435.57042080933167,425.39661400085174,450.6472857437656
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2060,baseline_gtco2_per_year,40.196485,40.196485,40.196485
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2060,net_gtco2_per_year,-1.3576775974640942,-6.309107210756845,9.153467645661031
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2060,interval_mac,317.15860702184864,155.0079989508564,414.7731586047561
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2060,mitigated_gtco2_per_year,41.5541625974641,31.04301735433897,46.505592210756845
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2100,mitigation,1.5357168117177207,1.116447247533756,1.7344481788317765
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2100,ghg_ppm,406.61496678799847,389.5776266267689,438.1514778997618
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2100,baseline_gtco2_per_year,9.682859,9.682859,9.682859
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2100,net_gtco2_per_year,-5.187270351792238,-7.111558158434875,-1.1275422788074565
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2100,interval_mac,388.7474115140623,186.39118105121395,477.8537615116192
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2100,mitigated_gtco2_per_year,14.870129351792237,10.810401278807458,16.794417158434875
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2150,mitigation,1.6950242825060975,1.165975566635694,2.391560587927968
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2150,ghg_ppm,362.8069364462401,349.20155070342526,403.0960157466832
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2150,baseline_gtco2_per_year,9.682859,9.682859,9.682859
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2150,net_gtco2_per_year,-6.7298221290827085,-13.47428496286362,-1.6071180091785306
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2150,interval_mac,212.4015773824184,97.9854180131602,297.1769157802087
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2150,mitigated_gtco2_per_year,16.41268112908271,11.289977009178532,23.15714396286362
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2200,mitigation,0.059861903551442414,0.0,0.5041127541776292
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2200,ghg_ppm,322.1302865332985,310.94058528143137,375.5581455933028
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2200,baseline_gtco2_per_year,9.682859000000004,9.682859,9.682859
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2200,net_gtco2_per_year,9.103224628439786,4.801606281196356,9.682859
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2200,interval_mac,0.5968091846983545,-0.0,7.523800711413636
+Low RA (5),download-delay-frontier-robustness,low_ra,10,optimal,2200,mitigated_gtco2_per_year,0.5796343715602162,0.0,4.881252718803645
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2025,mitigation,0.0,0.0,0.0
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2025,ghg_ppm,425.6,425.6,425.6
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2025,baseline_gtco2_per_year,42.061796,42.061796,42.061796
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2025,net_gtco2_per_year,42.061796,42.061796,42.061796
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2025,interval_mac,0.0,-0.0,-0.0
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2025,mitigated_gtco2_per_year,0.0,0.0,0.0
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2030,mitigation,0.0,0.0,0.0
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2030,ghg_ppm,447.78084386976184,447.78084386976184,447.78084386976184
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2030,baseline_gtco2_per_year,43.476063,43.476063,43.476063
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2030,net_gtco2_per_year,43.476063,43.476063,43.476063
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2030,interval_mac,0.0,-0.0,-0.0
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2030,mitigated_gtco2_per_year,0.0,0.0,0.0
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2035,mitigation,0.5025845092150698,0.3475574526659608,0.6575852428541793
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2035,ghg_ppm,465.5475315098372,465.5475315098372,465.5475315098372
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2035,baseline_gtco2_per_year,43.864481,43.864481,43.864481
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2035,net_gtco2_per_year,21.818872344641242,15.019845608942466,28.61905372112556
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2035,interval_mac,124.47576713920986,66.85545685735649,193.210983540329
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2035,mitigated_gtco2_per_year,22.045608655358755,15.245427278874438,28.84463539105753
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2040,mitigation,0.6041575004574431,0.3460802693886106,0.8609020727990333
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2040,ghg_ppm,468.865899103126,464.96873856755707,472.7637214717304
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2040,baseline_gtco2_per_year,44.2529,44.2529,44.2529
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2040,net_gtco2_per_year,17.517178548006815,6.155486662631659,28.93784444677275
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2040,interval_mac,149.72328497011873,55.851779812762445,286.75132639011264
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2040,mitigated_gtco2_per_year,26.73572145199318,15.315055553227246,38.09741333736834
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2060,mitigation,0.825861972292481,0.4054247718241746,1.2563241641735436
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2060,ghg_ppm,477.86010014858346,454.95913100265307,500.8670772002465
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2060,baseline_gtco2_per_year,40.196485,40.196485,40.196485
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2060,net_gtco2_per_year,6.999736618674869,-10.303330420339384,23.899834240741143
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2060,interval_mac,208.93564614990132,49.12616115882161,516.4188719176979
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2060,mitigated_gtco2_per_year,33.196748381325136,16.29665075925886,50.49981542033939
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2100,mitigation,1.3492460799011474,0.6678349288597235,2.0953122987020216
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2100,ghg_ppm,455.1577047559784,404.66802748589913,504.9119429035615
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2100,baseline_gtco2_per_year,9.682859,9.682859,9.682859
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2100,net_gtco2_per_year,-3.381700547985546,-10.60575454929756,3.2163075485762667
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2100,interval_mac,304.04510742221515,57.916105950082994,599.4120353074334
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2100,mitigated_gtco2_per_year,13.064559547985546,6.466551451423734,20.28861354929756
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2150,mitigation,1.7509394407778216,0.8914541661134094,2.9569594489061557
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2150,ghg_ppm,409.67648474579994,361.35854009049115,473.9057827742066
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2150,baseline_gtco2_per_year,9.682859,9.682859,9.682859
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2150,net_gtco2_per_year,-7.2712407225904965,-18.94896241247601,1.0510340045612785
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2150,interval_mac,207.13051175208656,50.51319790674961,315.450638057825
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2150,mitigated_gtco2_per_year,16.9540997225905,8.631824995438722,28.63182141247601
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2200,mitigation,1.2413307534008795,0.6589792665797302,2.477160688493945
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2200,ghg_ppm,361.40930453369384,326.43682624687295,447.0849051652438
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2200,baseline_gtco2_per_year,9.682859000000004,9.682859,9.682859
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2200,net_gtco2_per_year,-2.3367716575444875,-14.303138667029792,3.3020556777850607
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2200,interval_mac,56.57136902005524,12.448105957497756,143.94011743168576
+Low EIS (0.9),download-preference,pref_grid_008,10,delayed,2200,mitigated_gtco2_per_year,12.019630657544486,6.380803322214939,23.985997667029793
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2025,mitigation,0.4071984859366636,0.4071984859366636,0.4071984859366636
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2025,ghg_ppm,425.6,425.6,425.6
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2025,baseline_gtco2_per_year,42.061796,42.061796,42.061796
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2025,net_gtco2_per_year,24.934296353023186,24.934296353023186,24.934296353023186
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2025,interval_mac,98.53640435377194,98.53640435377194,98.53640435377194
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2025,mitigated_gtco2_per_year,17.127499646976815,17.127499646976815,17.127499646976815
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2030,mitigation,0.44205582212583316,0.3740756081365706,0.5100360361150957
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2030,ghg_ppm,437.8611822105714,437.8611822105714,437.8611822105714
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2030,baseline_gtco2_per_year,43.476063,43.476063,43.476063
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2030,net_gtco2_per_year,24.257216227740486,21.301704161589825,27.212728293891143
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2030,interval_mac,105.90177102101244,80.34221761355181,131.46132442847306
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2030,mitigated_gtco2_per_year,19.218846772259518,16.26333470610886,22.17435883841018
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2035,mitigation,0.48076314037847034,0.3299095768516391,0.631953631673224
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2035,ghg_ppm,446.4276361689443,444.7334983735353,448.1217739643533
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2035,baseline_gtco2_per_year,43.864481,43.864481,43.864481
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2035,net_gtco2_per_year,22.776055363368254,16.144162930588866,29.39316863447323
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2035,interval_mac,115.44347039583448,62.02375912898814,179.02339327136883
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2035,mitigated_gtco2_per_year,21.088425636631744,14.471312365526767,27.72031806941113
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2040,mitigation,0.5822393563294079,0.3299518957763288,0.8347206107399303
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2040,ghg_ppm,453.11172016747145,447.9260357392102,458.2889332706643
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2040,baseline_gtco2_per_year,44.2529,44.2529,44.2529
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2040,net_gtco2_per_year,18.48711998829034,7.314092284986938,29.651571751399697
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2040,interval_mac,139.7007279566497,52.14590206013854,267.2967926660826
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2040,mitigated_gtco2_per_year,25.76578001170966,14.6013282486003,36.938807715013056
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2060,mitigation,0.8041712936403953,0.3888377652300445,1.1999561395056118
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2060,ghg_ppm,466.97989558952247,443.41103567403667,490.52783472272125
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2060,baseline_gtco2_per_year,40.196485,40.196485,40.196485
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2060,net_gtco2_per_year,7.871625657753253,-8.03753396229523,24.566573602496995
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2060,interval_mac,196.81626094405817,46.093324350625,460.35679083841546
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2060,mitigated_gtco2_per_year,32.324859342246754,15.629911397503008,48.23401896229523
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2100,mitigation,1.2779774537792465,0.6460827317081536,1.891770905890101
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2100,ghg_ppm,447.85180983591505,399.5754627522179,497.68785720301526
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2100,baseline_gtco2_per_year,9.682859,9.682859,9.682859
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2100,net_gtco2_per_year,-2.6916164901234634,-8.634891942036122,3.42693100653512
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2100,interval_mac,275.45770000203197,54.31452457687772,544.506567642913
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2100,mitigated_gtco2_per_year,12.374475490123464,6.25592799346488,18.31775094203612
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2150,mitigation,1.6326053376298875,0.8731216034553061,2.7720529827172893
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2150,ghg_ppm,405.65665376119125,363.4811580294308,468.1490222952356
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2150,baseline_gtco2_per_year,9.682859,9.682859,9.682859
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2150,net_gtco2_per_year,-6.125428286917597,-17.15853917218095,1.2285456238883583
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2150,interval_mac,190.31882585547527,48.11949951950099,313.63494428969557
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2150,mitigated_gtco2_per_year,15.808287286917599,8.454313376111642,26.841398172180952
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2200,mitigation,1.1920925162630807,0.6149622887058188,2.329588426719387
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2200,ghg_ppm,361.5310694972909,329.5776361517088,442.203150780276
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2200,baseline_gtco2_per_year,9.682859000000004,9.682859,9.682859
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2200,net_gtco2_per_year,-1.8600047499306176,-12.87421726395566,3.728265868144264
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2200,interval_mac,52.27298444561694,10.912171412597496,140.6965785802991
+Low EIS (0.9),download-preference,pref_grid_008,10,optimal,2200,mitigated_gtco2_per_year,11.542863749930618,5.954593131855736,22.55707626395566

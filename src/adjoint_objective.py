@@ -232,17 +232,7 @@ class EZForwardSensitivityObjective(ObjectiveWithGradient):
         return consumption, dcons
 
     def _terminal_utility_with_deriv(self, consumption, dcons):
-        log_growth = np.log(self.utility_model.growth_term)
-        if self.utility_model.is_log_eis:
-            continuation_log = self.utility_model.b * log_growth / (
-                1.0 - self.utility_model.b
-            )
-        else:
-            continuation_log = -np.log1p(
-                -(self.utility_model.b / (1.0 - self.utility_model.b))
-                * np.expm1(self.utility_model.r * log_growth)
-            ) / self.utility_model.r
-        multiplier = np.exp(continuation_log)
+        multiplier = self.utility_model._terminal_multiplier()
         return consumption * multiplier, dcons * multiplier
 
     def _intertemporal_aggregate_with_deriv(self, consumption, dcons,
@@ -826,17 +816,7 @@ class EZAdjointObjective(ObjectiveWithGradient):
         )
 
     def _terminal_multiplier(self):
-        log_growth = np.log(self.utility_model.growth_term)
-        if self.utility_model.is_log_eis:
-            continuation_log = self.utility_model.b * log_growth / (
-                1.0 - self.utility_model.b
-            )
-        else:
-            continuation_log = -np.log1p(
-                -(self.utility_model.b / (1.0 - self.utility_model.b))
-                * np.expm1(self.utility_model.r * log_growth)
-            ) / self.utility_model.r
-        return float(np.exp(continuation_log))
+        return self.utility_model._terminal_multiplier()
 
     def _certain_equivalence_forward(self, period, damage_period, utility_tree):
         next_u = utility_tree.get_next_period_array(period)

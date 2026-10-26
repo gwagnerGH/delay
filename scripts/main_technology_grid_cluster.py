@@ -13,10 +13,10 @@ import sys
 
 import numpy as np
 
-from _project_paths import configure_paths
+from scripts._project_paths import configure_paths
 configure_paths()
 
-import main_ensemble_delayed_cluster as ensemble
+from scripts import main_ensemble_delayed_cluster as ensemble
 from src.config import (
     GAUSSIAN_PRIOR_SET_NAME,
     PARAMETER_PRIOR_INDEX,
@@ -27,9 +27,10 @@ from src.config import (
 )
 
 from src.config.parameter_overrides import preference_override_row
+from src.config.revised_baseline import ENDOGENOUS_LEARNING_ROBUSTNESS
 
 
-output_folder = "technology-grid-BY2025-fixedlearn-run0-v1"
+output_folder = "revised-technology-grid-RA10-EIS15-logterminal-no-learning-v2"
 
 
 def parse_levels(env_name, default_values):
@@ -54,7 +55,7 @@ def technology_grid_values():
         'TECH_SCALE_LEVELS',
         [
             PARAMETER_PRIOR_LOWER_BOUNDS[tech_scale_index],
-            PARAMETER_PRIOR_MEANS[tech_scale_index],
+            ENDOGENOUS_LEARNING_ROBUSTNESS,
             PARAMETER_PRIOR_UPPER_BOUNDS[tech_scale_index],
         ],
     )

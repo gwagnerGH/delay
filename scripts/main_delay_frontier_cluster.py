@@ -7,8 +7,8 @@ The fixed/five-year frontier uses the shared early learning grid
 5, 10, and 15 only; year 20 is intentionally omitted to avoid adding
 another branching decision time.
 
-By default this runs the research_runs.csv row-0 parameter vector so the frontier
-is a compact main-specification mechanism run. Set FRONTIER_PARAMETER_SOURCE to
+By default this runs the revised RA 10/EIS 1.5/no-learning baseline parameter vector so the
+frontier is a compact main-specification mechanism run. Set FRONTIER_PARAMETER_SOURCE to
 "ensemble" and FRONTIER_N_SAMPLES to use Gaussian ensemble draws instead.
 """
 
@@ -17,10 +17,10 @@ import sys
 
 import numpy as np
 
-from _project_paths import configure_paths
+from scripts._project_paths import configure_paths
 configure_paths()
 
-import main_ensemble_delayed_cluster as ensemble
+from scripts import main_ensemble_delayed_cluster as ensemble
 from src.analysis.delayed_action import (
     FIXED_DELAY_DAMAGE_FILE_TAG,
     FIXED_DELAY_EMISSIONS_TIME_STEP,
@@ -41,9 +41,10 @@ from src.config import (
     PARAMETER_PRIOR_UPPER_BOUNDS,
     RUN0_PARAMETER_VALUES,
 )
+from src.config.revised_baseline import ENDOGENOUS_LEARNING_ROBUSTNESS
 
 
-output_folder = "delay-frontier-BY2025-fixedlearn-run0-v1"
+output_folder = "revised-delay-frontier-RA10-EIS15-logterminal-no-learning-v3"
 
 FRONTIER_GRID = os.environ.get('FRONTIER_GRID', 'fixed_learning').strip().lower()
 if FRONTIER_GRID in ('5', '5yr', '5-year', 'five-year', 'five_year', 'native'):
@@ -85,10 +86,11 @@ FRONTIER_PARAMETER_SOURCE = os.environ.get(
 FRONTIER_N_SAMPLES = int(os.environ.get('FRONTIER_N_SAMPLES', '1'))
 FRONTIER_SAMPLE_OFFSET = int(os.environ.get('FRONTIER_SAMPLE_OFFSET', '0'))
 DEFAULT_FRONTIER_PARAMETER_SPECS = [
-    "low_eis",
     "high_ra",
+    "high_eis",
+    "endogenous_learning",
     "low_ra",
-    "no_endogenous_learning",
+    "low_eis",
 ]
 
 
@@ -180,20 +182,42 @@ def parameter_spec_values():
     for spec in specs:
         row, _ = preference_override_row()
         if spec == 'low_eis':
-            row[PARAMETER_PRIOR_INDEX['EIS']] = PARAMETER_PRIOR_LOWER_BOUNDS[PARAMETER_PRIOR_INDEX['EIS']]
+            row[PARAMETER_PRIOR_INDEX['EIS']] = 0.9
+            label = spec
+        elif spec == 'mid_eis':
+            row[PARAMETER_PRIOR_INDEX['EIS']] = 1.5
+            label = spec
+        elif spec == 'very_low_eis':
+            row[PARAMETER_PRIOR_INDEX['EIS']] = 0.1
             label = spec
         elif spec == 'high_eis':
-            row[PARAMETER_PRIOR_INDEX['EIS']] = PARAMETER_PRIOR_UPPER_BOUNDS[PARAMETER_PRIOR_INDEX['EIS']]
+            row[PARAMETER_PRIOR_INDEX['EIS']] = 2.2
+            label = spec
+        elif spec == 'unit_eis':
+            row[PARAMETER_PRIOR_INDEX['EIS']] = 1.0
+            label = spec
+        elif spec == 'mid_ra':
+            row[PARAMETER_PRIOR_INDEX['RA']] = 10.0
+            label = spec
+        elif spec == 'high_ra_eis':
+            row[PARAMETER_PRIOR_INDEX['RA']] = 20.0
+            row[PARAMETER_PRIOR_INDEX['EIS']] = 2.0
             label = spec
         elif spec == 'high_ra':
-            row[PARAMETER_PRIOR_INDEX['RA']] = PARAMETER_PRIOR_UPPER_BOUNDS[PARAMETER_PRIOR_INDEX['RA']]
+            row[PARAMETER_PRIOR_INDEX['RA']] = 15.0
+            label = spec
+        elif spec == 'very_high_ra':
+            row[PARAMETER_PRIOR_INDEX['RA']] = 45.0
             label = spec
         elif spec == 'low_ra':
-            row[PARAMETER_PRIOR_INDEX['RA']] = PARAMETER_PRIOR_LOWER_BOUNDS[PARAMETER_PRIOR_INDEX['RA']]
+            row[PARAMETER_PRIOR_INDEX['RA']] = 5.0
             label = spec
         elif spec in ('no_endogenous_learning', 'no_learning'):
             row[PARAMETER_PRIOR_INDEX['tech_scale']] = 0.0
             label = 'no_endogenous_learning'
+        elif spec in ('endogenous_learning', 'learning'):
+            row[PARAMETER_PRIOR_INDEX['tech_scale']] = ENDOGENOUS_LEARNING_ROBUSTNESS
+            label = 'endogenous_learning'
         else:
             raise ValueError(
                 "Unknown FRONTIER_PARAMETER_SPECS entry "

@@ -229,15 +229,22 @@ class BPWDamage(Damage):
                 d_sum = np.zeros(nperiods)
                 old_state = 0
                 for d_class in range(nperiods):
-                    test_1 = self.tree.final_states_prob[old_state:old_state+sum_class[d_class]]
+                    test_1 = temp_prob[old_state:old_state+sum_class[d_class]]
                     test_2 = self.d_rcomb[k, old_state:old_state+sum_class[d_class], period]
                     d_sum[d_class] = (test_1 * test_2).sum()
                     old_state += sum_class[d_class]
-                    self.tree.final_states_prob[new_state[d_class, 0:sum_class[d_class]]] = temp_prob[0]
 
                 for d_class in range(nperiods):
                     self.d_rcomb[k, new_state[d_class, 0:sum_class[d_class]],\
                                  period] = d_sum[d_class] / prob_sum[d_class]
+
+        # The recombined states in one fragility class represent the same
+        # outcome. Retain each class's original total mass, distributed equally
+        # among its paths. Using temp_prob[0] for every state only normalizes
+        # the special uniform-probability tree.
+        for d_class in range(nperiods):
+            self.tree.final_states_prob[new_state[d_class, :sum_class[d_class]]] = (
+                prob_sum[d_class] / sum_class[d_class])
 
         self.tree.node_prob[-len(self.tree.final_states_prob):] = self.tree.final_states_prob
 

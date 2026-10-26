@@ -1,0 +1,17 @@
+{
+  "experiment": "future-growth",
+  "certified_cases": 39,
+  "source_case_counts": {
+    "R-and-R-future-growth-v2": 36,
+    "R-and-R-future-growth-certretry-v1": 3
+  },
+  "table_rows": {
+    "certified_results.csv": 39,
+    "certified_node_prices.csv": 19890,
+    "certified_node_metrics.csv": 19890
+  },
+  "certification": "Both optimal and delayed result flags and local-stationarity manifests are true.",
+  "excluded": null,
+  "raw_sources_location": "../archive/",
+  "note": null
+}

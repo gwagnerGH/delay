@@ -1,0 +1,17 @@
+{
+  "experiment": "preference",
+  "certified_cases": 90,
+  "source_case_counts": {
+    "R-and-R-preference-v2": 87,
+    "R-and-R-preference-certretry-v1": 3
+  },
+  "table_rows": {
+    "certified_results.csv": 90,
+    "certified_node_prices.csv": 45900,
+    "certified_node_metrics.csv": 45900
+  },
+  "certification": "Both optimal and delayed result flags and local-stationarity manifests are true.",
+  "excluded": null,
+  "raw_sources_location": "../archive/",
+  "note": null
+}

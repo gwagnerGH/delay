@@ -8,10 +8,12 @@ from src.tree import TreeModel
 
 def utility_for_eis(eis, beta=0.93, growth=1.015):
     utility = EZUtility.__new__(EZUtility)
+    utility.period_len = 5.0
     utility.r = 1.0 - 1.0 / eis
     utility.is_log_eis = abs(utility.r) <= utility._LOG_EIS_TOL
     utility.b = beta
     utility.growth_term = growth
+    utility.terminal_growth_term = growth
     return utility
 
 
@@ -33,7 +35,7 @@ class TestEISLimit(unittest.TestCase):
             consumption, cert_equiv
         )
 
-        for eis in (0.9999, 1.0001):
+        for eis in (0.999999, 1.000001):
             nearby = utility_for_eis(eis)._intertemporal_aggregate(
                 consumption, cert_equiv
             )
@@ -44,10 +46,35 @@ class TestEISLimit(unittest.TestCase):
         consumption = np.array([0.8, 1.2, 3.5])
         center = utility_for_eis(1.0)._terminal_utility(consumption)
 
-        for eis in (0.9999, 1.0001):
+        for eis in (0.999999, 1.000001):
             nearby = utility_for_eis(eis)._terminal_utility(consumption)
             self.assertTrue(np.isfinite(nearby).all())
             np.testing.assert_allclose(nearby, center, rtol=2e-5, atol=0.0)
+
+    def test_terminal_utility_matches_corrected_baseline(self):
+        from src.config.revised_baseline import BASELINE
+        from src.config.terminal_growth import TerminalGrowthSettings
+        utility = utility_for_eis(
+            BASELINE.eis, beta=(1.0-BASELINE.prtp)**5,
+            growth=np.exp(TerminalGrowthSettings().log_growth_per_step(5, BASELINE.ra)),
+        )
+        consumption = np.array([2.0, 4.0])
+        ratio = utility.b * utility.terminal_growth_term**utility.r
+        self.assertLess(ratio, 1.0)
+        multiplier = ((1.0-utility.b)/(1.0-ratio))**(1.0/utility.r)
+        np.testing.assert_allclose(
+            utility._terminal_utility(consumption),
+            consumption*multiplier,
+            rtol=1e-13,
+            atol=0.0,
+        )
+
+    def test_inadmissible_terminal_growing_annuity_raises(self):
+        utility = utility_for_eis(
+            2.2, beta=(1.0-0.001)**5, growth=1.015
+        )
+        with self.assertRaisesRegex(ValueError, "Infinite terminal growing annuity"):
+            utility._terminal_utility(np.array([1.0]))
 
     def test_stable_formula_matches_legacy_formula_away_from_one(self):
         utility = utility_for_eis(0.8)
@@ -78,7 +105,7 @@ class TestEISLimit(unittest.TestCase):
                 return np.zeros_like(period_mitigation)
 
         values = []
-        for eis in (0.9999, 1.0, 1.0001):
+        for eis in (0.999999, 1.0, 1.000001):
             utility = EZUtility(
                 tree=tree,
                 damage=ZeroDamage(),

@@ -1,0 +1,16 @@
+sample_index,delay_year,tree_spec,source_folder,case_directory
+0,5,back_loaded_decisions,R-and-R-tree-v2,tree_robustness_0_delay5_task3
+0,5,default,R-and-R-tree-v2,tree_robustness_0_delay5_task1
+0,5,front_loaded_decisions,R-and-R-tree-v2,tree_robustness_0_delay5_task2
+0,5,higher_fragility_weight,R-and-R-tree-v2,tree_robustness_0_delay5_task4
+0,5,lower_fragility_weight,R-and-R-tree-certretry-v1,tree_robustness_0_delay5_task5
+0,10,back_loaded_decisions,R-and-R-tree-certretry-v1,tree_robustness_0_delay10_task8
+0,10,default,R-and-R-tree-v2,tree_robustness_0_delay10_task6
+0,10,front_loaded_decisions,R-and-R-tree-v2,tree_robustness_0_delay10_task7
+0,10,higher_fragility_weight,R-and-R-tree-v2,tree_robustness_0_delay10_task9
+0,10,lower_fragility_weight,R-and-R-tree-certretry-v1,tree_robustness_0_delay10_task10
+0,15,back_loaded_decisions,R-and-R-tree-v2,tree_robustness_0_delay15_task13
+0,15,default,R-and-R-tree-v2,tree_robustness_0_delay15_task11
+0,15,front_loaded_decisions,R-and-R-tree-v2,tree_robustness_0_delay15_task12
+0,15,higher_fragility_weight,R-and-R-tree-v2,tree_robustness_0_delay15_task14
+0,15,lower_fragility_weight,R-and-R-tree-certretry-v1,tree_robustness_0_delay15_task15

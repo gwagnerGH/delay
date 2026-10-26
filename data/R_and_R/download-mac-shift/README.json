@@ -1,0 +1,17 @@
+{
+  "experiment": "mac-shift",
+  "certified_cases": 363,
+  "source_case_counts": {
+    "R-and-R-mac-shift-v1": 304,
+    "R-and-R-mac-shift-certretry-v1": 59
+  },
+  "table_rows": {
+    "certified_results.csv": 363,
+    "certified_node_prices.csv": 185130,
+    "certified_node_metrics.csv": 185130
+  },
+  "certification": "Both optimal and delayed result flags and local-stationarity manifests are true.",
+  "excluded": null,
+  "raw_sources_location": "../archive/",
+  "note": null
+}

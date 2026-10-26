@@ -1,0 +1,13 @@
+sample_index,delay_year,source_folder,case_directory
+endogenous_learning,0,R-and-R-delay-frontier-robustness-v2,delay_frontier_endogenous_learning_delay0_task5
+endogenous_learning,5,R-and-R-delay-frontier-robustness-v2,delay_frontier_endogenous_learning_delay5_task6
+endogenous_learning,10,R-and-R-delay-frontier-robustness-v2,delay_frontier_endogenous_learning_delay10_task7
+endogenous_learning,15,R-and-R-delay-frontier-robustness-v2,delay_frontier_endogenous_learning_delay15_task8
+high_ra,0,R-and-R-delay-frontier-robustness-v2,delay_frontier_high_ra_delay0_task1
+high_ra,5,R-and-R-delay-frontier-robustness-v2,delay_frontier_high_ra_delay5_task2
+high_ra,10,R-and-R-delay-frontier-robustness-v2,delay_frontier_high_ra_delay10_task3
+high_ra,15,R-and-R-delay-frontier-robustness-v2,delay_frontier_high_ra_delay15_task4
+low_ra,0,R-and-R-delay-frontier-robustness-certretry-v4,delay_frontier_low_ra_delay0_task9
+low_ra,5,R-and-R-delay-frontier-robustness-certretry-v4,delay_frontier_low_ra_delay5_task10
+low_ra,10,R-and-R-delay-frontier-robustness-certretry-v4,delay_frontier_low_ra_delay10_task11
+low_ra,15,R-and-R-delay-frontier-robustness-certretry-v4,delay_frontier_low_ra_delay15_task12

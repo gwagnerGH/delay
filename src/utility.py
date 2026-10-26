@@ -14,6 +14,8 @@ import numpy as np
 from scipy.optimize import brentq
 
 from src.storage_tree import BigStorageTree, SmallStorageTree
+from src.config.revised_baseline import BASELINE
+from src.config.terminal_growth import TerminalGrowthSettings, continuation_log_multiplier
 
 np.seterr(all='ignore')
 
@@ -67,14 +69,22 @@ class EZUtility(object):
 
     _LOG_EIS_TOL = 1e-12
 
-    def __init__(self, tree, damage, cost, period_len, eis=0.9, ra=7.0,
-                 time_pref=0.005, cons_growth=0.015):
+    def __init__(self, tree, damage, cost, period_len, eis=BASELINE.eis, ra=BASELINE.ra,
+                 time_pref=BASELINE.prtp, cons_growth=BASELINE.growth, *,
+                 terminal_growth_mode=BASELINE.terminal_growth_mode,
+                 terminal_growth=BASELINE.terminal_growth,
+                 terminal_log_mean=BASELINE.terminal_log_mean,
+                 terminal_log_sigma=BASELINE.terminal_log_sigma):
         self.tree = tree
         self.damage = damage
         self.cost = cost
         self.period_len = period_len
         self.cons_growth = cons_growth
         self.growth_term = 1.0 + self.cons_growth
+        self.terminal_settings = TerminalGrowthSettings(
+            terminal_growth_mode, terminal_growth, terminal_log_mean, terminal_log_sigma)
+        self.terminal_growth_term = float(np.exp(
+            self.terminal_settings.log_growth_per_step(period_len, ra, cons_growth)))
         self.r = 1.0 - 1.0/eis
         self.is_log_eis = abs(self.r) <= self._LOG_EIS_TOL
         self.a = 1.0 - ra
@@ -101,15 +111,17 @@ class EZUtility(object):
     def _terminal_utility(self, consumption):
         """Stable terminal continuation value, including the EIS=1 limit."""
 
-        log_growth = np.log(self.growth_term)
-        if self.is_log_eis:
-            continuation_log = self.b * log_growth / (1.0 - self.b)
-        else:
-            continuation_log = -np.log1p(
-                -(self.b / (1.0 - self.b))
-                * np.expm1(self.r * log_growth)
-            ) / self.r
-        return np.asarray(consumption) * np.exp(continuation_log)
+        return np.asarray(consumption) * self._terminal_multiplier()
+
+    def _terminal_multiplier(self):
+        return float(np.exp(continuation_log_multiplier(
+            self.b, self.r, np.log(self.terminal_growth_term))))
+
+    def terminal_metadata(self):
+        return self.terminal_settings.describe(
+            ra=1-self.a, eis=1/(1-self.r),
+            prtp=-np.expm1(np.log(self.b)/self.period_len),
+            period_len=self.period_len, modeled_growth=self.cons_growth)
 
     def utility(self, m, return_trees=False):
         """Calculating utility for the specific mitigation decisions `m`.
@@ -425,7 +437,8 @@ class EZUtility(object):
                 if np.any(final_adjustment != 0.0) or np.any(current_adjustment != 0.0):
                     self._require_nonlog_marginal_adjustments()
                     mu_0 = (1.0-self.b) * (u/cons_tree[period])**(1.0-self.r)
-                    next_term = self.b * (1.0-self.b) / (1.0-self.b*self.growth_term**self.r)
+                    next_term = self.b * (1.0-self.b) / (
+                        1.0-self.b*self.terminal_growth_term**self.r)
                     mu_1 = (u**(1.0-self.r)) * next_term * (cons_tree.last**(self.r-1.0))
                     u += final_adjustment * mu_1
                     u += current_adjustment * mu_0

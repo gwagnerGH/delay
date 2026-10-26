@@ -1,0 +1,17 @@
+{
+  "experiment": "tree",
+  "certified_cases": 15,
+  "source_case_counts": {
+    "R-and-R-tree-v2": 11,
+    "R-and-R-tree-certretry-v1": 4
+  },
+  "table_rows": {
+    "certified_results.csv": 15,
+    "certified_node_metrics.csv": 6882,
+    "certified_node_prices.csv": 6882
+  },
+  "certification": "Both optimal and delayed result flags and local-stationarity manifests are true.",
+  "excluded": null,
+  "raw_sources_location": "../archive/",
+  "note": "Tree node prices are reconstructed from interval_mac in the tree-labelled node metrics; these equal the source carbon_price values."
+}

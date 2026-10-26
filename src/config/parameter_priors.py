@@ -6,6 +6,8 @@ from pathlib import Path
 
 import numpy as np
 
+from .revised_baseline import BASELINE
+
 
 @dataclass(frozen=True)
 class ParameterPrior:
@@ -16,6 +18,7 @@ class ParameterPrior:
     upper: float
     mean_value: float
     source_note: str = ""
+    std_value: float | None = None
 
     @property
     def mean(self):
@@ -23,10 +26,11 @@ class ParameterPrior:
 
     @property
     def std(self):
-        return (self.upper - self.lower) / 4.0
+        return ((self.upper - self.lower) / 4.0
+                if self.std_value is None else self.std_value)
 
 
-GAUSSIAN_PRIOR_SET_NAME = "BRprefs_run0mode"
+GAUSSIAN_PRIOR_SET_NAME = "revised_RA10_EIS15_logterminal_curvature_RAmax15_v5"
 
 RESEARCH_RUN_PARAMETER_COLUMNS = {
     "RA": "RA",
@@ -57,53 +61,64 @@ RUN0_RESEARCH_RUN = _load_research_run0()
 GAUSSIAN_PARAMETER_PRIORS = (
     ParameterPrior(
         "RA",
-        3.0,
+        1.0,
         15.0,
-        float(RUN0_RESEARCH_RUN["RA"]),
-        "Risk aversion support used in ensemble runs; mode is data/research_runs.csv run 0.",
+        BASELINE.ra,
+        "RA 10 revised baseline; RA 7, RA 15, and RA 45 are deterministic sensitivities.",
+        std_value=3.75,
     ),
     ParameterPrior(
         "EIS",
-        0.55,
-        1.86,
-        float(RUN0_RESEARCH_RUN["EIS"]),
-        "Bauer & Rudebusch term-structure interpolation support; mode is data/research_runs.csv run 0.",
+        0.01,
+        3.0,
+        BASELINE.eis,
+        "EIS 1.5 revised baseline; EIS 0.9 and 0.1 are deterministic low-EIS sensitivities.",
+        std_value=0.5625,
     ),
     ParameterPrior(
         "tech_chg",
         0.0,
         3.0,
-        float(RUN0_RESEARCH_RUN["tech_change"]),
-        "Exogenous technological progress support; mode is data/research_runs.csv run 0.",
+        BASELINE.tech_const,
+        "Revised baseline exogenous abatement technology rate.",
     ),
     ParameterPrior(
         "tech_scale",
         0.0,
         3.0,
-        float(RUN0_RESEARCH_RUN["tech_scale"]),
-        "Endogenous learning support; mode is data/research_runs.csv run 0.",
+        BASELINE.tech_scale,
+        "Zero-learning revised baseline; positive values represent learning robustness draws.",
     ),
     ParameterPrior(
         "PRTP",
-        0.001,
-        0.024,
-        float(RUN0_RESEARCH_RUN["preference"]),
-        "Bauer & Rudebusch term-structure interpolation support; mode is data/research_runs.csv run 0.",
+        0.004,
+        0.020,
+        BASELINE.prtp,
+        "Revised baseline annual pure rate of time preference; joint preference draws are conditioned on finite terminal continuation.",
+        std_value=0.00225,
     ),
     ParameterPrior(
         "bs_premium",
         5000.0,
         20000.0,
         float(RUN0_RESEARCH_RUN["bs_premium"]),
-        "Backstop premium support; mode is data/research_runs.csv run 0.",
+        "Legacy compatibility slot; ignored by revised S-curve model. Use cubic gamma explicitly.",
     ),
     ParameterPrior(
         "growth",
-        0.010,
+        0.005,
         0.025,
-        float(RUN0_RESEARCH_RUN["growth"]),
-        "Consumption growth support; mode is data/research_runs.csv run 0.",
+        BASELINE.growth,
+        "Revised baseline annual exogenous consumption growth.",
+        std_value=0.00375,
     ),
+)
+
+# Revised ensemble only: keep the seven legacy-compatible columns intact.
+REVISED_ENSEMBLE_CURVATURE_PRIOR = ParameterPrior(
+    "backstop_curvature", 0.5, 2.0, BASELINE.backstop_curvature,
+    "Smooth removal-curve curvature; 1 reproduces the default S-curve.",
+    std_value=0.375,
 )
 
 PARAMETER_PRIOR_NAMES = [prior.name for prior in GAUSSIAN_PARAMETER_PRIORS]
@@ -130,7 +145,7 @@ RUN0_FIXED_PARAMETERS = {
     "tip_on": int(RUN0_RESEARCH_RUN["tip_on"]),
     "d_unc": int(RUN0_RESEARCH_RUN["d_unc"]),
     "t_unc": int(RUN0_RESEARCH_RUN["t_unc"]),
-    "no_free_lunch": bool(int(RUN0_RESEARCH_RUN["no_free_lunch"])),
+    "no_free_lunch": BASELINE.no_free_lunch,
 }
 
 
@@ -146,5 +161,5 @@ def parameter_prior_table():
             "std": prior.std,
             "source_note": prior.source_note,
         }
-        for prior in GAUSSIAN_PARAMETER_PRIORS
+        for prior in GAUSSIAN_PARAMETER_PRIORS + (REVISED_ENSEMBLE_CURVATURE_PRIOR,)
     ]

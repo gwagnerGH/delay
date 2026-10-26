@@ -979,7 +979,8 @@ class CandidateScreenedLBFGSB(object):
                  nonsmooth_kkt_step=1e-4,
                  nonsmooth_kkt_utility_gain_tol=1e-10,
                  nonsmooth_kkt_max_coordinates=32,
-                 mandatory_starts=None):
+                 mandatory_starts=None,
+                 recover_infeasible_consumption=False):
         self.utility = utility
         self.objective_with_gradient = objective_with_gradient
         self.gradient_mode = str(gradient_mode).lower()
@@ -1046,6 +1047,7 @@ class CandidateScreenedLBFGSB(object):
         self.structured_start_count = max(0, int(structured_start_count))
         self.near_full_mitigation = float(near_full_mitigation)
         self.start_boundary_epsilon = max(0.0, float(start_boundary_epsilon))
+        self.recover_infeasible_consumption = bool(recover_infeasible_consumption)
         self.preserve_diverse_starts = bool(preserve_diverse_starts)
         self.min_diverse_start_groups = max(0, int(min_diverse_start_groups))
         self.perturbation_check = bool(perturbation_check)
@@ -1857,6 +1859,7 @@ class CandidateScreenedLBFGSB(object):
         start_m = self._full_from_scaled(x0)
         start_u = self._utility_at_full(start_m)
         eval_state = {"nfev": 0}
+        infeasible_trial_count = 0
         eval_lock = threading.Lock()
         best_eval = {
             "fun": -start_u if np.isfinite(start_u) else np.inf,
@@ -1891,6 +1894,10 @@ class CandidateScreenedLBFGSB(object):
             if self.gradient_mode == "adjoint"
             else None
         )
+        last_feasible = {
+            "x": x0.copy(),
+            "fun": -float(start_u) if np.isfinite(start_u) else np.inf,
+        }
 
         def report_gradient_start(gradient_count, f0):
             if (
@@ -1925,10 +1932,30 @@ class CandidateScreenedLBFGSB(object):
                 )
 
         def adjoint_objective_and_gradient(x):
+            nonlocal infeasible_trial_count
             gradient_state["count"] += 1
             with eval_lock:
                 eval_state["nfev"] += 1
-            fun, grad = local_scipy_objective.fun_and_jac(x)
+            try:
+                fun, grad = local_scipy_objective.fun_and_jac(x)
+            except FloatingPointError as error:
+                if (not self.recover_infeasible_consumption
+                        or str(error) != "Nonpositive five-year consumption"
+                        or not np.isfinite(last_feasible["fun"])):
+                    raise
+                # An infeasible L-BFGS-B trial must not discard a feasible
+                # start. Extend the objective uphill toward the trial so its
+                # internal line search can backtrack. Artificial values are
+                # never eligible to be saved as solutions.
+                infeasible_trial_count += 1
+                displacement = np.asarray(x, float) - last_feasible["x"]
+                weight = 1e4 * max(1.0, abs(last_feasible["fun"]))
+                fun = last_feasible["fun"] + weight * (
+                    1.0 + float(np.dot(displacement, displacement)))
+                grad = 2.0 * weight * displacement
+                return fun, grad
+            last_feasible["x"] = np.asarray(x, float).copy()
+            last_feasible["fun"] = float(fun)
             record_evaluation(x, fun, "value_and_gradient")
             report_gradient_start(gradient_state["count"], fun)
             report_gradient_done(gradient_state["count"])
@@ -1989,7 +2016,8 @@ class CandidateScreenedLBFGSB(object):
                     method="L-BFGS-B",
                     bounds=[(0.0, 1.0)] * len(self.active_indices),
                     callback=callback,
-                    options={"maxiter": self.maxiter, "ftol": self.ftol, "gtol": self.gtol},
+                    options={"maxiter": self.maxiter, "ftol": self.ftol, "gtol": self.gtol,
+                             "maxls": 100 if self.recover_infeasible_consumption else 20},
                 )
             except FloatingPointError as error:
                 # A local adjoint evaluation can be undefined even when the
@@ -2006,6 +2034,7 @@ class CandidateScreenedLBFGSB(object):
                     "best_eval_source": "start",
                     "best_eval_utility": float(start_u) if np.isfinite(start_u) else np.nan,
                     "nonfinite_adjoint_gradient_rejected": True,
+                    "n_infeasible_consumption_trials": int(infeasible_trial_count),
                     "message": "rejected local start after non-finite adjoint gradient: {}".format(error),
                     "nfev": int(eval_state["nfev"]),
                     "ngev": int(gradient_state["count"]),
@@ -2058,6 +2087,7 @@ class CandidateScreenedLBFGSB(object):
             "best_eval_source": str(best_eval["source"]),
             "best_eval_utility": float(best_eval_u) if np.isfinite(best_eval_u) else np.nan,
             "nonfinite_adjoint_gradient_rejected": False,
+            "n_infeasible_consumption_trials": int(infeasible_trial_count),
             "message": message,
             "nfev": int(eval_state["nfev"]),
             "ngev": int(gradient_state["count"]),
@@ -2271,6 +2301,8 @@ class CandidateScreenedLBFGSB(object):
             x = self._clip_start_scaled(x)
             try:
                 value = self._utility_at_full(self._full_from_scaled(x))
+                if np.isfinite(value):
+                    self.scipy_objective.jac(x)
             except Exception:
                 continue
             if np.isfinite(value):
@@ -2311,8 +2343,6 @@ class CandidateScreenedLBFGSB(object):
             self._gradient_validation_diag = diag
             return diag
         rng = np.random.RandomState((self.gradient_validation_seed + 17) % (2**32 - 1))
-        abs_errors = []
-        rel_errors = []
         rows = []
         for direction_index in range(self.gradient_validation_directions):
             direction = rng.normal(size=len(x0))
@@ -2321,6 +2351,7 @@ class CandidateScreenedLBFGSB(object):
                 continue
             direction = direction / norm
             adjoint_dot = float(np.dot(base_grad, direction))
+            direction_rows = []
             for eps in self.gradient_validation_epsilons:
                 x_plus = np.clip(x0 + eps * direction, 0.0, 1.0)
                 x_minus = np.clip(x0 - eps * direction, 0.0, 1.0)
@@ -2329,14 +2360,30 @@ class CandidateScreenedLBFGSB(object):
                     or np.any(np.abs(self._full_from_scaled(x_minus)[self.active_indices] - 1.0) <= 1e-8)
                 ):
                     continue
-                f_plus = self.scipy_objective.fun(x_plus)
-                f_minus = self.scipy_objective.fun(x_minus)
+                try:
+                    f_plus = self.scipy_objective.fun(x_plus)
+                    f_minus = self.scipy_objective.fun(x_minus)
+                except FloatingPointError as error:
+                    # A central-difference probe may leave the economically
+                    # feasible consumption region even when x0 is feasible.
+                    # Try a smaller step/direction; never certify without a
+                    # valid finite-difference comparison.
+                    if str(error) not in ("Nonpositive five-year consumption",
+                                          "Nonpositive interval ton-pricing denominator"):
+                        raise
+                    continue
+                if not (np.isfinite(f_plus) and np.isfinite(f_minus)):
+                    continue
                 fd = float((f_plus - f_minus) / (2.0 * eps))
                 abs_error = abs(fd - adjoint_dot)
                 rel_error = abs_error / max(1.0, abs(fd), abs(adjoint_dot))
-                abs_errors.append(abs_error)
-                rel_errors.append(rel_error)
-                rows.append((eps, fd, adjoint_dot, abs_error, rel_error))
+                direction_rows.append((eps, fd, adjoint_dot, abs_error, rel_error))
+            # Large steps have truncation error; very small steps suffer
+            # cancellation after objective scaling. Validate the best step
+            # separately for every direction, rather than requiring all
+            # candidate steps to agree with the analytic derivative.
+            if direction_rows:
+                rows.append(min(direction_rows, key=lambda row: (row[4], row[3])))
         if not rows:
             diag["gradient_validation_status"] = "failed"
             diag["gradient_validation_message"] = "no valid validation directions away from kink/bounds"
@@ -2345,8 +2392,8 @@ class CandidateScreenedLBFGSB(object):
         best_row = min(rows, key=lambda row: row[4])
         diag.update({
             "gradient_validation_status": "passed",
-            "gradient_validation_max_abs_error": float(max(abs_errors)),
-            "gradient_validation_max_rel_error": float(max(rel_errors)),
+            "gradient_validation_max_abs_error": float(max(row[3] for row in rows)),
+            "gradient_validation_max_rel_error": float(max(row[4] for row in rows)),
             "gradient_validation_best_epsilon": float(best_row[0]),
             "gradient_validation_best_fd_directional": float(best_row[1]),
             "gradient_validation_best_adjoint_dot": float(best_row[2]),
@@ -2641,6 +2688,10 @@ class CandidateScreenedLBFGSB(object):
             "n_guarded_start_kept": int(sum(r["guarded_start_kept"] for r in local_results)),
             "n_nonfinite_adjoint_gradient_rejections": int(sum(
                 r.get("nonfinite_adjoint_gradient_rejected", False)
+                for r in local_results
+            )),
+            "n_infeasible_consumption_trials": int(sum(
+                r.get("n_infeasible_consumption_trials", 0)
                 for r in local_results
             )),
             "n_best_eval_retained": int(sum(r.get("best_eval_retained", False) for r in local_results)),

@@ -58,7 +58,7 @@ import hashlib
 import json
 import subprocess
 
-from _project_paths import PROJECT_ROOT, configure_paths
+from scripts._project_paths import PROJECT_ROOT, configure_paths
 configure_paths()
 
 from src.tree import TreeModel
@@ -86,6 +86,7 @@ from src.optimization import (
 )
 from src.adjoint_objective import EZAdjointObjective
 from src.gen_samples import generate_gaussian_samples
+from src.config.terminal_growth import TerminalGrowthSettings
 from src.config import (
     DEFAULT_BASE_YEAR,
     DEFAULT_CALENDAR_YEARS,
@@ -97,6 +98,7 @@ from src.config import (
     PARAMETER_PRIOR_NAMES,
     PARAMETER_PRIOR_STDS,
     PARAMETER_PRIOR_UPPER_BOUNDS,
+    REVISED_ENSEMBLE_CURVATURE_PRIOR,
     RUN0_FIXED_PARAMETERS,
 )
 
@@ -113,11 +115,20 @@ delay_years = [
 if not delay_years or any(delay not in (5, 10, 15) for delay in delay_years):
     raise ValueError("DELAY_YEARS must be a nonempty subset of 5,10,15.")
 
-DIMS = PARAMETER_PRIOR_DIMS
-ubs = PARAMETER_PRIOR_UPPER_BOUNDS
-lbs = PARAMETER_PRIOR_LOWER_BOUNDS
-param_names = PARAMETER_PRIOR_NAMES
-# Risk Aversion, elasticity of intertemporal substitution, rate of exogeneous technological development, rate of endogeneous technological development, pure rate of time preference, backstop premium, consumption growth rate
+REVISED_ENSEMBLE = os.environ.get("EZDELAY_LEGACY_CLUSTER") != "1"
+DIMS = PARAMETER_PRIOR_DIMS + int(REVISED_ENSEMBLE)
+ubs = (np.append(PARAMETER_PRIOR_UPPER_BOUNDS, REVISED_ENSEMBLE_CURVATURE_PRIOR.upper)
+       if REVISED_ENSEMBLE else PARAMETER_PRIOR_UPPER_BOUNDS)
+lbs = (np.append(PARAMETER_PRIOR_LOWER_BOUNDS, REVISED_ENSEMBLE_CURVATURE_PRIOR.lower)
+       if REVISED_ENSEMBLE else PARAMETER_PRIOR_LOWER_BOUNDS)
+param_names = (PARAMETER_PRIOR_NAMES + [REVISED_ENSEMBLE_CURVATURE_PRIOR.name]
+               if REVISED_ENSEMBLE else PARAMETER_PRIOR_NAMES)
+if not REVISED_ENSEMBLE:
+    # Explicit historical reproduction retains the v2 support and sample name.
+    GAUSSIAN_PRIOR_SET_NAME = "revised_RA10_EIS22_no_learning_v2"
+    lbs = np.asarray([5.0, 0.75, 0.0, 0.0, 0.001, 5000.0, 0.010])
+    ubs = np.asarray([20.0, 3.0, 3.0, 3.0, 0.010, 20000.0, 0.025])
+# Seven legacy-compatible parameters, plus removal curvature for revised ensembles.
 # EIS and PRTP supports follow the Bauer & Rudebusch (2022) term-structure
 # interpolation points archived in aux_notebooks/archive/Term-Structure-Interpolation.ipynb.
 
@@ -171,17 +182,25 @@ def gaussian_preference_means():
             "GAUSSIAN_PRTP_MEAN together; missing {}".format(", ".join(missing))
         )
     means = np.asarray(PARAMETER_PRIOR_MEANS, dtype=float).copy()
+    if REVISED_ENSEMBLE:
+        means = np.append(means, REVISED_ENSEMBLE_CURVATURE_PRIOR.mean)
     if supplied:
         means[param_names.index("RA")] = float(os.environ["GAUSSIAN_RA_MEAN"])
         means[param_names.index("EIS")] = float(os.environ["GAUSSIAN_EIS_MEAN"])
         means[param_names.index("PRTP")] = float(os.environ["GAUSSIAN_PRTP_MEAN"])
     support_ubs = gaussian_support_upper_bounds()
+    if not supplied:
+        eis_index = param_names.index("EIS")
+        means[eis_index] = min(means[eis_index], support_ubs[eis_index])
     if np.any(means < np.asarray(lbs, dtype=float)) or np.any(means > support_ubs):
         raise ValueError("Gaussian preference modes must lie within the configured support")
     return means
 
 
 def gaussian_preference_tag():
+    if not any(os.environ.get(name, "") != "" for name in
+               ("GAUSSIAN_RA_MEAN", "GAUSSIAN_EIS_MEAN", "GAUSSIAN_PRTP_MEAN")):
+        return ""
     means = gaussian_preference_means()
     default = np.asarray(PARAMETER_PRIOR_MEANS, dtype=float)
     indices = [param_names.index(name) for name in ("RA", "EIS", "PRTP")]
@@ -196,7 +215,8 @@ def gaussian_preference_tag():
 def gaussian_support_tag():
     """Stable filename tag that prevents reuse across EIS supports."""
 
-    return ("EISmax{:g}".format(gaussian_eis_upper_bound()).replace("-", "m").replace(".", "p") + gaussian_preference_tag())
+    tag = ("EISmax{:g}".format(gaussian_eis_upper_bound()).replace("-", "m").replace(".", "p") + gaussian_preference_tag())
+    return tag
 
 
 def gaussian_support_metadata():
@@ -206,6 +226,9 @@ def gaussian_support_metadata():
     eis_upper = gaussian_eis_upper_bound()
     return {
         "gaussian_prior_set": GAUSSIAN_PRIOR_SET_NAME,
+        "gaussian_terminal_settings": (TerminalGrowthSettings.from_environment().model_kwargs()
+                                       if REVISED_ENSEMBLE else None),
+        "gaussian_joint_conditioning": ("finite terminal continuation" if REVISED_ENSEMBLE else None),
         "gaussian_eis_lower_bound": float(lbs[eis_index]),
         "gaussian_eis_upper_bound": float(eis_upper),
         "gaussian_eis_truncated": bool(eis_upper < float(ubs[eis_index])),
@@ -213,6 +236,15 @@ def gaussian_support_metadata():
         "gaussian_ra_mean": float(gaussian_preference_means()[param_names.index("RA")]),
         "gaussian_eis_mean": float(gaussian_preference_means()[param_names.index("EIS")]),
         "gaussian_prtp_mean": float(gaussian_preference_means()[param_names.index("PRTP")]),
+        "gaussian_ra_bounds": [float(lbs[param_names.index("RA")]), float(ubs[param_names.index("RA")])],
+        "gaussian_prtp_bounds": [float(lbs[param_names.index("PRTP")]), float(ubs[param_names.index("PRTP")])],
+        "gaussian_growth_bounds": [float(lbs[param_names.index("growth")]), float(ubs[param_names.index("growth")])],
+        "gaussian_backstop_curvature_prior": (
+            dict(lower=REVISED_ENSEMBLE_CURVATURE_PRIOR.lower,
+                 upper=REVISED_ENSEMBLE_CURVATURE_PRIOR.upper,
+                 mode=REVISED_ENSEMBLE_CURVATURE_PRIOR.mean,
+                 std=REVISED_ENSEMBLE_CURVATURE_PRIOR.std)
+            if REVISED_ENSEMBLE else None),
     }
 
 # Fixed parameters (not sampled): use research_runs.csv row 0 unless a
@@ -224,7 +256,9 @@ d_unc = RUN0_FIXED_PARAMETERS["d_unc"]
 t_unc = RUN0_FIXED_PARAMETERS["t_unc"]
 no_free_lunch = RUN0_FIXED_PARAMETERS["no_free_lunch"]
 
-output_folder = "ensemble-BY2025-fixedlearn-run0gauss-N10000-delay5-15-v1"
+output_folder = ("revised-ensemble-delayed-RA10-EIS15-logterminal-curvature-v5"
+                 if REVISED_ENSEMBLE else
+                 "revised-ensemble-delayed-RA10-EIS22-no-learning-v2")
 
 test_mode = os.environ.get('TEST_MODE', '0').lower() in ('1', 'true', 'yes')
 import_damages = os.environ.get('IMPORT_DAMAGES', '0').lower() in ('1', 'true', 'yes')
@@ -3110,7 +3144,7 @@ def build_node_price_rows(sample_id, delay_year, task_id, scenario, tree, climat
 
 
 class ZeroDamage(BPWDamage):
-    """Damage object for Shapley coalitions with climate damages switched off."""
+    """Optional zero-damage diagnostic for the inherited solver."""
 
     zero_damage = True
 
@@ -3134,7 +3168,7 @@ def get_sample_filename():
     return os.path.join(
         DATA_DIR,
         "Gaussian_samples_N{}_DIMS{}_{}_{}_seed{}_ensemble_delayed.csv".format(
-            N_SAMPLES, DIMS, GAUSSIAN_PRIOR_SET_NAME, gaussian_support_tag(),
+            N_SAMPLES, DIMS, GAUSSIAN_PRIOR_SET_NAME + ("_" + TerminalGrowthSettings.from_environment().cache_tag() if REVISED_ENSEMBLE else ""), gaussian_support_tag(),
             gaussian_sample_seed()
         ),
     )
@@ -3143,7 +3177,8 @@ def get_sample_filename():
 def generate_gaussian_ensemble_samples():
     samp_fname = get_sample_filename()
     means = gaussian_preference_means()
-    stds = PARAMETER_PRIOR_STDS
+    stds = (np.append(PARAMETER_PRIOR_STDS, REVISED_ENSEMBLE_CURVATURE_PRIOR.std)
+            if REVISED_ENSEMBLE else PARAMETER_PRIOR_STDS)
     support_ubs = gaussian_support_upper_bounds()
     
     print(f"\nGenerating {N_SAMPLES} bounded Gaussian samples...")
@@ -3152,10 +3187,32 @@ def generate_gaussian_ensemble_samples():
     for i, name in enumerate(param_names):
         print(f"  {name}: [{lbs[i]}, {support_ubs[i]}], mode={means[i]}, std={stds[i]}")
     
-    generate_gaussian_samples(N_SAMPLES, DIMS, lbs, support_ubs, means=means, stds=stds,
-                              save_file=True, filename=samp_fname,
-                              random_seed=gaussian_sample_seed())
-    
+    rng = np.random.default_rng(gaussian_sample_seed())
+    accepted, accepted_count, drawn, rejected = [], 0, 0, 0
+    settings = TerminalGrowthSettings.from_environment()
+    while accepted_count < N_SAMPLES:
+        batch_size = N_SAMPLES - accepted_count
+        draws = generate_gaussian_samples(batch_size, DIMS, lbs, support_ubs,
+            means=means, stds=stds, save_file=False, random_seed=rng)
+        drawn += batch_size
+        if REVISED_ENSEMBLE:
+            mask = settings.admissible_mask(
+                draws[:, param_names.index("RA")], draws[:, param_names.index("EIS")],
+                draws[:, param_names.index("PRTP")],
+                modeled_growth=draws[:, param_names.index("growth")])
+            rejected += int(np.sum(~mask))
+            draws = draws[mask]
+            draws[:, param_names.index("bs_premium")] = means[param_names.index("bs_premium")]
+        accepted.append(draws)
+        accepted_count += len(draws)
+        if drawn > max(100000, 1000*N_SAMPLES):
+            raise ValueError("Gaussian prior has insufficient finite-continuation probability")
+    draws = np.concatenate(accepted)
+    np.savetxt(samp_fname, draws, delimiter=",")
+    with open(samp_fname + ".metadata.json", "w") as handle:
+        json.dump({**gaussian_support_metadata(), "accepted": len(draws),
+                   "proposed": drawn, "rejected_nonfinite_terminal": rejected}, handle, indent=2)
+
     print(f"Samples saved to: {samp_fname}\n")
 
 
@@ -3178,6 +3235,10 @@ def load_or_generate_gaussian_samples():
             fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
 
     support_ubs = gaussian_support_upper_bounds()
+    if REVISED_ENSEMBLE and not np.allclose(
+        param_vals[:, param_names.index("bs_premium")],
+        PARAMETER_PRIOR_MEANS[param_names.index("bs_premium")], rtol=0, atol=1e-9):
+        raise ValueError("Revised ensemble sample varies the unused old backstop premium; regenerate it")
     if param_vals.shape != (N_SAMPLES, DIMS):
         raise ValueError(
             "Gaussian sample file has shape {}, expected ({}, {})".format(
@@ -3186,6 +3247,14 @@ def load_or_generate_gaussian_samples():
         )
     if not np.all(np.isfinite(param_vals)):
         raise ValueError("Gaussian sample file contains non-finite values")
+    if REVISED_ENSEMBLE:
+        eis = param_vals[:, param_names.index("EIS")]
+        prtp = param_vals[:, param_names.index("PRTP")]
+        ra = param_vals[:, param_names.index("RA")]
+        growth = param_vals[:, param_names.index("growth")]
+        if not np.all(TerminalGrowthSettings.from_environment().admissible_mask(
+                ra, eis, prtp, modeled_growth=growth)):
+            raise ValueError("Gaussian sample file contains non-finite terminal-continuation draws")
     if (np.any(param_vals < np.asarray(lbs, dtype=float))
             or np.any(param_vals > support_ubs)):
         raise ValueError("Gaussian sample file contains values outside configured support")
@@ -3284,6 +3353,26 @@ def run_ensemble_delayed_analysis(sample_index, delay_year, param_vals,
                                   mac_horizontal_shift=0.0,
                                   mac_vertical_shift=0.0,
                                   delay_window_years=None):
+
+    # Revised economics is the default for every cluster wrapper using this
+    # common entry point. Historical behavior is opt-in for reproducibility.
+    if os.environ.get("EZDELAY_LEGACY_CLUSTER") != "1":
+        from scripts.run_revised_cluster import run_cluster_pair
+        return run_cluster_pair(
+            sample_index=sample_index, delay_year=delay_year,
+            param_vals=param_vals, out_folder=out_folder, baseline=baseline,
+            run_type=run_type, tree_spec=tree_spec,
+            decision_times_baseline=decision_times_baseline,
+            decision_times_delay=decision_times_delay,
+            prob_scale_baseline=prob_scale_baseline,
+            prob_scale_delay=prob_scale_delay,
+            sample_label=sample_label, output_metadata=output_metadata,
+            zero_climate_damages=zero_climate_damages,
+            legacy_damage_settings=dict(dam_func=dam_func, tip_on=tip_on,
+                d_unc=d_unc, t_unc=t_unc),
+            mac_horizontal_shift=mac_horizontal_shift,
+            mac_vertical_shift=mac_vertical_shift,
+            delay_window_years=delay_window_years)
 
     validate_damage_import_configuration(import_damages)
 
@@ -3491,10 +3580,10 @@ def run_ensemble_delayed_analysis(sample_index, delay_year, param_vals,
                              t_unc=t_unc)
 
     u_baseline = EZUtility(tree=t_baseline, damage=df_baseline, cost=c_baseline, period_len=period_len, eis=eis, ra=ra,
-                  time_pref=pref, cons_growth=growth)
+                  time_pref=pref, cons_growth=growth, terminal_growth_mode="legacy")
     
     u_delay = EZUtility(tree=t_delay, damage=df_delay, cost=c_delay, period_len=period_len, eis=eis, ra=ra,
-                  time_pref=pref, cons_growth=growth)
+                  time_pref=pref, cons_growth=growth, terminal_growth_mode="legacy")
 
     print("Model components initialized\n")
 
@@ -3567,7 +3656,7 @@ def run_ensemble_delayed_analysis(sample_index, delay_year, param_vals,
         coarse_utility = EZUtility(
             tree=coarse_tree, damage=coarse_damage, cost=coarse_cost,
             period_len=period_len, eis=eis, ra=ra, time_pref=pref,
-            cons_growth=growth,
+            cons_growth=growth, terminal_growth_mode="legacy",
         )
         return coarse_tree, coarse_utility
 
@@ -4261,7 +4350,7 @@ def main():
         samples_copy = os.path.join(
             DATA_DIR, out_folder, "samples",
             "Gaussian_samples_N{}_DIMS{}_{}_{}_seed{}.csv".format(
-                N_SAMPLES, DIMS, GAUSSIAN_PRIOR_SET_NAME, gaussian_support_tag(),
+                N_SAMPLES, DIMS, GAUSSIAN_PRIOR_SET_NAME + ("_" + TerminalGrowthSettings.from_environment().cache_tag() if REVISED_ENSEMBLE else ""), gaussian_support_tag(),
                 gaussian_sample_seed()
             ),
         )

@@ -1,0 +1,60 @@
+{
+  "certified_cases": 30000,
+  "source_case_counts": {
+    "R-and-R-ensemble-v2": 26655,
+    "R-and-R-ensemble-certretry-v1": 1878,
+    "R-and-R-ensemble-certretry-v2": 360,
+    "R-and-R-ensemble-topup-1000-per-delay-v1": 1107
+  },
+  "period_outcome_rows": 480000,
+  "period_outcomes_definition": "Probability-weighted node means within scenario and decision year.",
+  "exclusions": "Uncertified cases and unfinished cases are excluded.",
+  "raw_sources_location": "../archive/",
+  "selected_unique_draws": 10000,
+  "certified_per_delay": {
+    "5": 10000,
+    "10": 10000,
+    "15": 10000
+  },
+  "selection": {
+    "method": "All jointly certified original draws, plus minimum-total-squared-Mahalanobis-distance one-to-one matches for missing original points.",
+    "target_prior_file": "Gaussian_samples_N10000_DIMS8_revised_RA10_EIS15_logterminal_curvature_RAmax15_v5_terminal_ae1f886a21eb_EISmax3_seed20250706_ensemble_delayed.csv",
+    "topup_prior_file": "Gaussian_samples_N1000_DIMS8_revised_RA10_EIS15_logterminal_curvature_RAmax15_v5_terminal_ae1f886a21eb_EISmax3_seed20261005_ensemble_delayed.csv",
+    "paired_original_available": 9631,
+    "paired_topup_available": 877,
+    "selected_original": 9631,
+    "selected_topup": 369,
+    "selected_draws_per_delay": 10000,
+    "marginal_ks_distance_from_original_prior": {
+      "ra": 0.0025000000000000022,
+      "eis": 0.018600000000000002,
+      "tech_chg": 0.0016000000000000042,
+      "tech_scale": 0.0029000000000000137,
+      "prtp": 0.005900000000000016,
+      "growth": 0.0029000000000000137,
+      "backstop_curvature": 0.0019000000000000128
+    },
+    "marginal_ks_lower_bound_with_certified_candidates": {
+      "ra": 0.0001,
+      "eis": 0.0186,
+      "tech_chg": 0.0001,
+      "tech_scale": 0.0003,
+      "prtp": 0.0012,
+      "growth": 0.0,
+      "backstop_curvature": 0.0001
+    },
+    "maximum_marginal_ks_distance": 0.018600000000000002,
+    "standardized_mean_difference_from_original_prior": {
+      "ra": 0.0033387393370641863,
+      "eis": 0.015936687255338665,
+      "tech_chg": -0.00018690908507087097,
+      "tech_scale": -0.004449934633712988,
+      "prtp": 0.005749120345632054,
+      "growth": -0.004695040498795049,
+      "backstop_curvature": 0.0005724689887039468
+    },
+    "mean_match_distance": 1.5710406929729464,
+    "maximum_match_distance": 2.8634357357463798
+  },
+  "all_certified_bundle_archived_at": "../archive/download-ensemble-all-certified-v1/"
+}

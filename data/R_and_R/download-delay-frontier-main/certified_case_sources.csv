@@ -1,0 +1,4 @@
+sample_index,delay_year,source_folder,case_directory
+run0_params,0,R-and-R-delay-frontier-main-v2,delay_frontier_run0_params_delay0_task1
+run0_params,5,R-and-R-delay-frontier-main-v2,delay_frontier_run0_params_delay5_task2
+run0_params,10,R-and-R-delay-frontier-main-v2,delay_frontier_run0_params_delay10_task3

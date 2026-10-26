@@ -115,19 +115,20 @@ class TestEZAdjointObjective(unittest.TestCase):
             1, utility.tree.num_decision_nodes + 1, dtype=float
         )
         direction /= np.linalg.norm(direction)
-        step = 1e-7
+        step = 1e-3
 
         _, gradient = objective.value_and_gradient(mitigation)
-        plus_value, _ = objective.value_and_gradient(
-            mitigation + step * direction
-        )
-        minus_value, _ = objective.value_and_gradient(
-            mitigation - step * direction
-        )
-        finite_difference = (plus_value - minus_value) / (2.0 * step)
+        minus_two = objective.utility(mitigation - 2.0*step*direction)
+        minus_one = objective.utility(mitigation - step*direction)
+        plus_one = objective.utility(mitigation + step*direction)
+        plus_two = objective.utility(mitigation + 2.0*step*direction)
+        finite_difference = (
+            minus_two-8.0*minus_one+8.0*plus_one-plus_two
+        )/(12.0*step)
         adjoint_dot = float(np.dot(gradient, direction))
 
-        self.assertLess(abs(finite_difference - adjoint_dot), 5e-8)
+        np.testing.assert_allclose(finite_difference, adjoint_dot,
+                                   rtol=1e-7, atol=1e-7)
 
     def test_directional_derivative_matches_finite_difference(self):
         utility = make_tiny_real_utility()

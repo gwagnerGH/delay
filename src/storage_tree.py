@@ -46,7 +46,7 @@ class BaseStorageTree(object, metaclass=ABCMeta):
         return len(self.tree)
 
     def __getitem__(self, key):
-        if isinstance(key, int) or isinstance(key, float):
+        if isinstance(key, (int, float, np.integer, np.floating)):
             return self.tree.__getitem__(key).copy()
         else:
             raise TypeError('Index must be int, not {}'.format(type(key).__name__))

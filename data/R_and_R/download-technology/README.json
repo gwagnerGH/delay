@@ -1,0 +1,17 @@
+{
+  "experiment": "technology",
+  "certified_cases": 27,
+  "source_case_counts": {
+    "R-and-R-technology-v2": 23,
+    "R-and-R-technology-certretry-v1": 4
+  },
+  "table_rows": {
+    "certified_results.csv": 27,
+    "certified_node_prices.csv": 13770,
+    "certified_node_metrics.csv": 13770
+  },
+  "certification": "Both optimal and delayed result flags and local-stationarity manifests are true.",
+  "excluded": null,
+  "raw_sources_location": "../archive/",
+  "note": null
+}

@@ -3,9 +3,9 @@
 Deterministic preference-grid robustness runs for delayed-action analysis.
 
 Each SGE task maps to one (preference-grid point, delay_year) combination.
-The grid varies RA, EIS, and PRTP while holding technology, backstop premium,
-and growth at the research_runs.csv row-0 values. Outputs use the same consolidated
-schema as main_ensemble_delayed_cluster.py.
+The grid varies RA and EIS around the revised RA 10/EIS 1.5 baseline while
+also varying PRTP and holding technology, the S-shaped backstop, and growth
+at their revised baseline values. Outputs use the consolidated revised-cluster schema.
 """
 
 import os
@@ -13,10 +13,12 @@ import sys
 
 import numpy as np
 
-from _project_paths import configure_paths
+from scripts._project_paths import configure_paths
 configure_paths()
 
-import main_ensemble_delayed_cluster as ensemble
+from scripts import main_ensemble_delayed_cluster as ensemble
+from src.config.revised_baseline import (PREFERENCE_RA_LEVELS, PREFERENCE_EIS_LEVELS,
+    PREFERENCE_PRTP_LEVELS)
 from src.config import (
     GAUSSIAN_PRIOR_SET_NAME,
     PARAMETER_PRIOR_INDEX,
@@ -27,7 +29,7 @@ from src.config import (
 )
 
 
-output_folder = "preference-grid-BY2025-fixedlearn-run0-v1"
+output_folder = "revised-preference-grid-RA10-EIS15-logterminal-no-learning-v3"
 
 
 def parse_levels(env_name, default_values):
@@ -47,18 +49,14 @@ def default_levels(name):
 
 
 def default_eis_levels():
-    """Paper robustness grid: exclude the non-finite upper-EIS corner.
-
-    An explicit PREFERENCE_EIS_LEVELS value still permits a separate
-    high-EIS sensitivity run when that case is methodologically required.
-    """
-    return default_levels('EIS')[:2]
+    """Return the shared EIS robustness grid, including the high stress case."""
+    return list(PREFERENCE_EIS_LEVELS)
 
 
 def preference_grid_values():
-    ra_levels = parse_levels('PREFERENCE_RA_LEVELS', default_levels('RA'))
+    ra_levels = parse_levels('PREFERENCE_RA_LEVELS', PREFERENCE_RA_LEVELS)
     eis_levels = parse_levels('PREFERENCE_EIS_LEVELS', default_eis_levels())
-    prtp_levels = parse_levels('PREFERENCE_PRTP_LEVELS', default_levels('PRTP'))
+    prtp_levels = parse_levels('PREFERENCE_PRTP_LEVELS', PREFERENCE_PRTP_LEVELS)
 
     values = []
     labels = []

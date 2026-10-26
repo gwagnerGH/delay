@@ -1,6 +1,6 @@
 #!/bin/bash
 set -euo pipefail
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/scripts/_cluster_env.sh"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/_cluster_env.sh"
 
 for kv in "$@"; do
   case "$kv" in *=*) export "$kv" ;; esac
@@ -45,4 +45,4 @@ export MKL_DYNAMIC=FALSE
 export ADJOINT_FAIL_ON_VALUE_MISMATCH="${ADJOINT_FAIL_ON_VALUE_MISMATCH:-0}"
 export ADJOINT_VALUE_PARITY_MODE="${ADJOINT_VALUE_PARITY_MODE:-off}"
 
-python -u main_delayed_partial.py
+python -u -m scripts.main_delayed_partial

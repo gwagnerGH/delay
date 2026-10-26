@@ -17,7 +17,7 @@ import pickle
 import pprint
 import numpy as np
 
-from _project_paths import PROJECT_ROOT, configure_paths
+from scripts._project_paths import PROJECT_ROOT, configure_paths
 configure_paths()
 
 from src.tree import TreeModel
@@ -38,7 +38,7 @@ from src.config import DEFAULT_CALENDAR_YEARS
 from src.config.parameter_overrides import preference_override_values
 from src.tools import import_csv
 from src.optimization import CandidateScreenedLBFGSB, GeneticAlgorithm, GradientSearch
-import main_ensemble_delayed_cluster as consolidated_outputs
+from scripts import main_ensemble_delayed_cluster as consolidated_outputs
 
 # Configuration
 runs = [0]
@@ -56,7 +56,7 @@ if unsupported_delay_years:
         f"got {unsupported_delay_years}."
     )
 partial_mitigation_pct = list(range(0, 101, 5))  # [0, 5, 10, 15, ..., 95, 100]
-output_folder = "partial-mitigation-BY2025-fixedlearn-run0-cap-v1"
+output_folder = "revised-partial-mitigation-RA10-EIS15-logterminal-no-learning-v2"
 test_mode = os.environ.get('TEST_MODE', '0').lower() in ('1', 'true', 'yes')
 import_damages = os.environ.get('IMPORT_DAMAGES', '0').lower() in ('1', 'true', 'yes')
 partial_run_mode = os.environ.get('PARTIAL_RUN_MODE', 'single_cap').strip().lower()
@@ -1014,6 +1014,27 @@ def main():
     Main execution function for SGE array job.
     """
     run_index, task_id, delay_year, partial_mit_pct, partial_mit_value, out_folder = get_cluster_config()
+    if os.environ.get("EZDELAY_LEGACY_CLUSTER") != "1":
+        from src.config import RUN0_PARAMETER_VALUES
+        from scripts.run_revised_cluster import run_cluster_pair
+        if run_index != 0:
+            raise ValueError("Revised partial mitigation currently supports the shared baseline row only")
+        cap_values = (partial_mitigation_pct if partial_run_mode == 'cap_sequence'
+                      else [partial_mit_pct])
+        results = []
+        for cap_pct in cap_values:
+            # 100% in the historical experiment meant the cap was removed,
+            # not an economic m<=1 restriction on all later nodes.
+            cap = 4.0 if cap_pct == 100 else cap_pct/100.0
+            results.append(run_cluster_pair(
+                sample_index=0, delay_year=delay_year,
+                param_vals=RUN0_PARAMETER_VALUES.reshape(1,-1),
+                out_folder=out_folder, baseline=2,
+                run_type="partial_mitigation",
+                sample_label=f"baseline_cap{cap_pct:g}",
+                early_cap=cap, cap_years=delay_year,
+                output_metadata={"partial_mitigation_pct": cap_pct}))
+        return results
 
     setup_cluster_directories(out_folder)
 

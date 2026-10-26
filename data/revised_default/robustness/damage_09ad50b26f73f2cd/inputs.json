@@ -1,0 +1,26 @@
+{
+  "kind": "damage",
+  "spec": "df0_TP0_dunc1_tunc1",
+  "decision_times": [
+    0,
+    5,
+    10,
+    15,
+    35,
+    75,
+    125,
+    175,
+    225
+  ],
+  "prob_scale": 1.0,
+  "damage_settings": {
+    "dam_func": 0,
+    "tip_on": 0,
+    "d_unc": 1,
+    "t_unc": 1
+  },
+  "draws": 300000,
+  "seed": 20260925,
+  "flat_after_2100": true,
+  "version": 1
+}

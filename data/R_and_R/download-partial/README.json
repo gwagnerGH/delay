@@ -1,0 +1,16 @@
+{
+  "experiment": "partial",
+  "certified_cases": 63,
+  "source_case_counts": {
+    "R-and-R-partial-v2": 55,
+    "R-and-R-partial-certretry-v1": 8
+  },
+  "table_rows": {
+    "certified_results.csv": 63,
+    "certified_node_prices.csv": 32130,
+    "certified_node_metrics.csv": 32130
+  },
+  "certification": "Both optimal and delayed result flags and local-stationarity manifests are true.",
+  "excluded": null,
+  "raw_sources_location": "../archive/"
+}

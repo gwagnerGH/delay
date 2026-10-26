@@ -1,6 +1,6 @@
 #!/bin/bash
 set -euo pipefail
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/scripts/_cluster_env.sh"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/_cluster_env.sh"
 
 # Export KEY=VALUE params passed after the script name (from grid_run)
 for kv in "$@"; do
@@ -29,4 +29,4 @@ export DISABLE_OPTIMAL_CACHE="${DISABLE_OPTIMAL_CACHE:-1}"
 export ADJOINT_FAIL_ON_VALUE_MISMATCH="${ADJOINT_FAIL_ON_VALUE_MISMATCH:-0}"
 export ADJOINT_VALUE_PARITY_MODE="${ADJOINT_VALUE_PARITY_MODE:-off}"
 
-python -u main_damage_robustness_cluster.py
+python -u -m scripts.main_damage_robustness_cluster

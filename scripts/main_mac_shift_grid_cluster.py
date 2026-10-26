@@ -5,10 +5,10 @@ import itertools
 import os
 import numpy as np
 
-from _project_paths import configure_paths
+from scripts._project_paths import configure_paths
 configure_paths()
 
-import main_ensemble_delayed_cluster as ensemble
+from scripts import main_ensemble_delayed_cluster as ensemble
 from src.analysis.delayed_action import (
     FIXED_DELAY_DAMAGE_FILE_TAG, FIXED_DELAY_EMISSIONS_TIME_STEP,
     FIXED_DELAY_PERIOD_LEN,
@@ -18,6 +18,7 @@ from src.config import (
     DEFAULT_BASE_YEAR, DEFAULT_CALENDAR_YEARS, PARAMETER_PRIOR_INDEX,
     RUN0_PARAMETER_VALUES,
 )
+from src.config.revised_baseline import BASELINE
 
 HORIZONTAL_SHIFTS = tuple(np.round(np.arange(0.0, 0.5001, 0.05), 10))
 VERTICAL_SHIFTS = tuple(np.arange(0.0, 250.01, 25.0))
@@ -29,7 +30,9 @@ def grid_points():
 
 
 def task_configuration():
-    task_value = os.environ.get("SGE_TASK_ID") or os.environ.get("TASK_ID")
+    task_value = os.environ.get("SGE_TASK_ID")
+    if not task_value or not task_value.isdecimal():
+        task_value = os.environ.get("TASK_ID")
     if task_value is None:
         raise ValueError("SGE_TASK_ID or TASK_ID is required for the MAC-shift grid")
     task_id = int(task_value)
@@ -58,6 +61,11 @@ def parameter_row():
     if present and len(present) != len(names):
         raise ValueError("Provide all of MAC_GRID_RA, MAC_GRID_EIS, and MAC_GRID_PRTP")
     row = np.asarray(RUN0_PARAMETER_VALUES, dtype=float).copy()
+    for name, value in (("RA", BASELINE.ra), ("EIS", BASELINE.eis),
+                        ("PRTP", BASELINE.prtp), ("growth", BASELINE.growth),
+                        ("tech_chg", BASELINE.tech_const),
+                        ("tech_scale", BASELINE.tech_scale)):
+        row[PARAMETER_PRIOR_INDEX[name]] = value
     if present:
         row[PARAMETER_PRIOR_INDEX["RA"]] = float(os.environ["MAC_GRID_RA"])
         row[PARAMETER_PRIOR_INDEX["EIS"]] = float(os.environ["MAC_GRID_EIS"])
@@ -69,12 +77,16 @@ def main():
     task_id, point_index, delay_year, horizontal_shift, vertical_shift, total = (
         task_configuration()
     )
-    out_folder = os.environ.get("OUTPUT_FOLDER", "paper-mac-shift-grid-v1")
+    out_folder = os.environ.get("OUTPUT_FOLDER", "paper-revised-mac-shift-ra10-eis22-scurve-v2")
     baseline = int(os.environ.get("BASELINE_NUM", ensemble.baseline_num))
-    if ensemble.backstop_smoothing_width() != 0.0:
-        raise ValueError("MAC-shift grid requires BACKSTOP_SMOOTHING_WIDTH=0")
-    if ensemble.lbfgsb_policy_upper_bound() != 1.0:
-        raise ValueError("MAC-shift grid requires LBFGSB_POLICY_UPPER_BOUND=1.0")
+    if os.environ.get("EZDELAY_LEGACY_CLUSTER") == "1":
+        raise ValueError("Paper MAC-shift grid requires the revised solver")
+    if os.environ.get("REVISED_BACKSTOP", "s_curve") != "s_curve":
+        raise ValueError("Paper MAC-shift grid requires the smooth S-curve backstop")
+    if float(os.environ.get("REVISED_NUMERICAL_GUARD", "5")) != 5.0:
+        raise ValueError("Paper MAC-shift grid requires numerical guard 5, above the economic cap")
+    if float(os.environ.get("LBFGSB_POLICY_UPPER_BOUND", "4")) != 4.0:
+        raise ValueError("Paper MAC-shift grid requires policy cap m<=4")
 
     ensemble.setup_cluster_directories(out_folder)
     decision_times = fixed_delay_decision_times()
@@ -90,8 +102,8 @@ def main():
         "mac_grid_point": int(point_index + 1),
         "mac_horizontal_shift": float(horizontal_shift),
         "mac_vertical_shift": float(vertical_shift),
-        "mac_shift_formula": "MAC_base(m+h)+v",
-        "mac_policy_cap": 1.0,
+        "mac_shift_formula": "MAC_revised_s_curve(m+h)+v",
+        "mac_policy_cap": 4.0,
         "mac_grid_ra": float(row[PARAMETER_PRIOR_INDEX["RA"]]),
         "mac_grid_eis": float(row[PARAMETER_PRIOR_INDEX["EIS"]]),
         "mac_grid_prtp": float(row[PARAMETER_PRIOR_INDEX["PRTP"]]),

@@ -13,10 +13,10 @@ import sys
 
 import numpy as np
 
-from _project_paths import configure_paths
+from scripts._project_paths import configure_paths
 configure_paths()
 
-import main_ensemble_delayed_cluster as ensemble
+from scripts import main_ensemble_delayed_cluster as ensemble
 from src.analysis.delayed_action import (
     SUPPORTED_FIXED_DELAY_YEARS,
     fixed_delay_decision_times,
@@ -25,7 +25,7 @@ from src.config import GAUSSIAN_PRIOR_SET_NAME, PARAMETER_PRIOR_DIMS, RUN0_PARAM
 from src.config.parameter_overrides import preference_override_row
 
 
-output_folder = "tree-robustness-BY2025-fixedlearn-run0-v1"
+output_folder = "revised-tree-robustness-RA10-EIS15-logterminal-no-learning-v2"
 
 # Default robustness grid:
 # row-0 parameter vector * 3 delay years * 5 tree specs = 15 tasks.

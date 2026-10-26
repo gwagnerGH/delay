@@ -1,0 +1,114 @@
+{
+  "description": "Full-tree delay sensitivity at RA=10, EIS=1.5, PRTP=0.5%, no-free-lunch smooth backstop, five-year cost accounting. Quantity learning uses the same cumulative mitigated-emissions numerator as share learning but divides by fixed cumulative BAU emissions through the stated reference year. For any fixed policy, the two rules coincide at the reference date. Both abatement and net removal contribute to the numerator; this is not an installed-capacity Wright-law model.",
+  "validation": "40 relevant tests pass. Quantity-policy solutions are certified with full-tree feasible FOC gaps below $1/t; compensation objective reproduces solved delayed utility at factor one.",
+  "rows": [
+    {
+      "delay_year": 5,
+      "learning": "none",
+      "reference_year": null,
+      "dwl_pct": 3.681302561426381,
+      "price_2025": 188.64175322946392,
+      "source": "data/R_and_R/download-technology/certified_results.csv"
+    },
+    {
+      "delay_year": 5,
+      "learning": "emissions_weighted_share",
+      "reference_year": null,
+      "dwl_pct": 2.975879186723329,
+      "price_2025": 165.40613786007611,
+      "source": "data/R_and_R/download-technology/certified_results.csv"
+    },
+    {
+      "delay_year": 5,
+      "learning": "cumulative_mitigated_quantity",
+      "reference_year": 2100,
+      "dwl_pct": 2.8749549892507886,
+      "price_2025": 162.57598612433046,
+      "source": "data/new_outputs/revised_cluster/quantity_learning_ref2100_2026-10-22/technology_grid_quantity_ref2100_delay5_tasklocal/result.json",
+      "optimal_foc_gap_dollars_per_ton": 0.774789825327118,
+      "delayed_foc_gap_dollars_per_ton": 0.5151295664864107
+    },
+    {
+      "delay_year": 5,
+      "learning": "cumulative_mitigated_quantity",
+      "reference_year": 2200,
+      "dwl_pct": 3.0426635908262556,
+      "price_2025": 168.0654269452639,
+      "source": "data/new_outputs/revised_cluster/quantity_learning_ref2200_2026-10-22/technology_grid_quantity_ref2200_delay5_tasklocal/result.json",
+      "optimal_foc_gap_dollars_per_ton": 0.27763778810904166,
+      "delayed_foc_gap_dollars_per_ton": 0.543316444274807
+    },
+    {
+      "delay_year": 10,
+      "learning": "none",
+      "reference_year": null,
+      "dwl_pct": 4.116683105192909,
+      "price_2025": 188.64175322946392,
+      "source": "data/R_and_R/download-technology/certified_results.csv"
+    },
+    {
+      "delay_year": 10,
+      "learning": "emissions_weighted_share",
+      "reference_year": null,
+      "dwl_pct": 3.3680705415414236,
+      "price_2025": 165.40613786007611,
+      "source": "data/R_and_R/download-technology/certified_results.csv"
+    },
+    {
+      "delay_year": 10,
+      "learning": "cumulative_mitigated_quantity",
+      "reference_year": 2100,
+      "dwl_pct": 3.223913846893356,
+      "price_2025": 162.57598612433046,
+      "source": "data/new_outputs/revised_cluster/quantity_learning_ref2100_2026-10-22/technology_grid_quantity_ref2100_delay10_tasklocal/result.json",
+      "optimal_foc_gap_dollars_per_ton": 0.774789825327118,
+      "delayed_foc_gap_dollars_per_ton": 0.24002017732732198
+    },
+    {
+      "delay_year": 10,
+      "learning": "cumulative_mitigated_quantity",
+      "reference_year": 2200,
+      "dwl_pct": 3.408484603178663,
+      "price_2025": 168.0654269452639,
+      "source": "data/new_outputs/revised_cluster/quantity_learning_ref2200_2026-10-22/technology_grid_quantity_ref2200_delay10_tasklocal/result.json",
+      "optimal_foc_gap_dollars_per_ton": 0.27763778810904166,
+      "delayed_foc_gap_dollars_per_ton": 0.7055271039001862
+    },
+    {
+      "delay_year": 15,
+      "learning": "none",
+      "reference_year": null,
+      "dwl_pct": 4.609498795284628,
+      "price_2025": 188.64175322946392,
+      "source": "data/R_and_R/download-technology/certified_results.csv"
+    },
+    {
+      "delay_year": 15,
+      "learning": "emissions_weighted_share",
+      "reference_year": null,
+      "dwl_pct": 3.8156615331775834,
+      "price_2025": 165.40613786007611,
+      "source": "data/R_and_R/download-technology/certified_results.csv"
+    },
+    {
+      "delay_year": 15,
+      "learning": "cumulative_mitigated_quantity",
+      "reference_year": 2100,
+      "dwl_pct": 3.602547571778758,
+      "price_2025": 162.57598612433046,
+      "source": "data/new_outputs/revised_cluster/quantity_learning_ref2100_2026-10-22/technology_grid_quantity_ref2100_delay15_tasklocal/result.json",
+      "optimal_foc_gap_dollars_per_ton": 0.774789825327118,
+      "delayed_foc_gap_dollars_per_ton": 0.9452999808096808
+    },
+    {
+      "delay_year": 15,
+      "learning": "cumulative_mitigated_quantity",
+      "reference_year": 2200,
+      "dwl_pct": 3.802761054949566,
+      "price_2025": 168.0654269452639,
+      "source": "data/new_outputs/revised_cluster/quantity_learning_ref2200_2026-10-22/technology_grid_quantity_ref2200_delay15_tasklocal/result.json",
+      "optimal_foc_gap_dollars_per_ton": 0.27763778810904166,
+      "delayed_foc_gap_dollars_per_ton": 0.5965954217625585
+    }
+  ]
+}
