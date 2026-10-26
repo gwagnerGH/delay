@@ -14,8 +14,8 @@ climate policy* (Daniel, Litterman, Moers, and Wagner).
   1.5%, no endogenous learning, and IID post-2250 log-growth with mean 1.5%
   and volatility 2%. See `src/config/revised_baseline.py` and
   `src/config/terminal_growth.py` for the executable defaults.
-- `scripts/` contains the model entry points, SGE array wrappers,
-  postprocessing, and supplementary sensitivity runners. There are no duplicate
+- `scripts/` contains the model entry points, SGE array wrappers, figure
+  regeneration, and supplementary sensitivity runners. There are no duplicate
   scripts at the repository root. `python scripts/reproduce_main_spec.py`
   prints the paper's main run suite without submitting cluster jobs.
 - `data/revised_default/` contains the saved damage grids and warm starts;
