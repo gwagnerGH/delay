@@ -1,14 +1,8 @@
 .DS_Store
 __pycache__/
 *.pyc
-.ipynb_checkpoints/
 .pytest_cache/
 *.log
 *.lock
-data/new_outputs/
-*.sh.e*
-*.sh.o*
-*.sh.pe*
-*.sh.po*
 env/
 .venv/

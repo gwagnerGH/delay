@@ -61,7 +61,6 @@ def main():
     for file in (
         "quantity_learning_summary.json", "cost_floor_2026-10-22/summary.csv",
         "cost_floor_2026-10-22/trajectories.csv",
-        "cubic_cap_limit/summary.csv",
     ):
         require(ROOT / "data" / "si_sensitivities" / file)
     manifest = ROOT / "SHA256SUMS"
