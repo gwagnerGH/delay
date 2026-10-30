@@ -1,6 +1,6 @@
 # The welfare cost of delayed climate policy: reproduction package
 
-This is the paper-facing snapshot of the corrected EZDelay model, run scripts, certified R&R result tables, and figure code for *The welfare cost of delayed climate policy* (Kent D. Daniel, Robert B. Litterman, Theo Moers, and Gernot Wagner; [gwagner.com/delay](https://gwagner.com/delay)).
+This is the reproduction-package for *The welfare cost of delayed climate policy* (Kent D. Daniel, Robert B. Litterman, Theo Moers, and Gernot Wagner; [gwagner.com/delay](https://gwagner.com/delay)).
 
 ## What is included
 
